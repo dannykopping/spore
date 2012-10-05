@@ -37,8 +37,8 @@
         {
             switch ($name)
             {
-                case "methods":
-                case "auth":
+                case AutoRouter::VERBS:
+                case AutoRouter::AUTH:
                     if (empty($value))
                         break;
 

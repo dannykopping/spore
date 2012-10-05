@@ -11,19 +11,9 @@
     Configuration::set("config", dirname(__FILE__));
 
     /**
-     * The path to the Slim library
-     */
-    Configuration::set("slim", dirname(__FILE__)."/../slim/Slim");
-
-    /**
-     * The path to the Slim Plugins library
-     */
-    Configuration::set("plugins", dirname(__FILE__)."/../slim-plugins/Plugins");
-
-    /**
      * Debug mode - show debugging messages and data if TRUE
      */
-    Configuration::set("debug", true);
+    Configuration::set("debug", false);
 
     /**
      * The default encoding of the response data
@@ -50,11 +40,11 @@
 	 * Database connection
 	 */
 	Configuration::set("DB_ENGINE", "mysql");
-	Configuration::set("DB_USERNAME", "root");
-	Configuration::set("DB_PASSWORD", "mac150189");
+	Configuration::set("DB_USERNAME", "");
+	Configuration::set("DB_PASSWORD", "");
 	Configuration::set("DB_HOST", "localhost");
-	Configuration::set("DB_PORT", "3306");
-	Configuration::set("DB_SCHEMA", "triptrackr");
+	Configuration::set("DB_PORT", "");
+	Configuration::set("DB_SCHEMA", "");
 
 	Configuration::load();
 

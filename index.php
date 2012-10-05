@@ -1,6 +1,5 @@
 <?php
 	require_once "vendor/autoload.php";
-
 	require_once "Spore/Spore.php";
 
 	use Slim\Slim;
@@ -27,39 +26,18 @@
         if(empty($roles))
             return true;
 
-        // if an operation has an "@authorize debug" annotation,
+        // if an operation has an "@auth debug" annotation,
         // and DEBUG MODE is enabled, allow
         return Configuration::get("debug") === true && in_array("debug", $roles);
     });
 
-    // get and require all PHP services located in the PHP_SERVICES directory
+    // get and require all PHP services (@see the 'services' config setting)
     $classes = $controller->getAllPHPServices();
 
     // auto-routing must always be declared AFTER authorization callback
     $controller->addAutoRouting($classes);
     $app->add(new Response());
 
-	$app->get('/', function()
-	{
-		return ("hi");
-	});
-
     // run Slim!
     $app->run();
-
-	class Bob
-	{
-		/**
-		 * @var bob
-		 */
-		public $bob;
-
-		/**
-		 * @param Bob
-		 */
-		public function bob()
-		{
-
-		}
-	}
 ?>

@@ -18,7 +18,7 @@
         private $routes;
 
         const ROUTE = "url";
-        const METHODS = "methods";
+        const VERBS = "verbs";
         const AUTH = "auth";
 
         public function __construct(Slim $slimInstance, $args=null)
@@ -58,7 +58,7 @@
                 {
                     $annotations = $this->buildAnnotationDescriptors($method->getAnnotations());
 
-                    // if there is no @route annotation, ignore this method
+                    // if there is no @url annotation, ignore this method
                     if(!$method->hasAnnotation(self::ROUTE))
                         continue;
 
@@ -165,11 +165,11 @@
 
         private function getRouteMethods($method)
         {
-            $routeMethodsAnnotation = $method->getAnnotation(self::METHODS);
+            $routeMethodsAnnotation = $method->getAnnotation(self::VERBS);
 
             if (!$routeMethodsAnnotation)
             {
-                throw new Exception("No @".self::METHODS." annotation could be found in [" . $method->getClass()->name . "::" . $method->name . "]. " .
+                throw new Exception("No @".self::VERBS." annotation could be found in [" . $method->getClass()->name . "::" . $method->name . "]. " .
                     "This annotation is required for routing. " .
                     "Add a @ignore annotation to exclude this method from auto-routing");
             }
@@ -177,9 +177,9 @@
             if (empty($routeMethodsAnnotation->values) || empty($routeMethodsAnnotation->values[0]))
             {
                 throw new RuntimeException("The method [" . $method->getClass()->name . "::" . $method->name . "] requires " .
-                    "a value for the @".self::METHODS." annotation. Example:\n" .
+                    "a value for the @".self::VERBS." annotation. Example:\n" .
                     "/**\n" .
-                    "* @".self::METHODS."   GET,POST\n" .
+                    "* @".self::VERBS."   GET,POST\n" .
                     "*/");
             }
 

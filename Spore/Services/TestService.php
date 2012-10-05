@@ -12,10 +12,10 @@
 	{
 		/**
 		 * @url			/hi/:bob
-		 * @methods		GET,POST
+		 * @verbs		GET,POST
 		 */
 		public function hi(Request $req, Response $res)
 		{
-			return $req;
+			return (string) ($req|1);
 		}
 	}
