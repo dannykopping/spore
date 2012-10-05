@@ -2,6 +2,7 @@
 	namespace Spore\Auth;
 
     use Slim\Slim;
+	use Spore\Spore;
 	use Spore\ReST\AutoRoute\Route;
 	use Spore\Ext\Base;
 
@@ -11,7 +12,7 @@
 
         protected static $authorizationCallback;
 
-        public function __construct(Slim $slimInstance, $args = null)
+        public function __construct(Spore $slimInstance, $args = null)
         {
             parent::__construct($slimInstance, $args);
 
@@ -54,14 +55,9 @@
 
                     if (!$authorized)
                     {
-                        $this->slimInstance->contentType("application/json");
-                        $this->slimInstance->response()->header("Access-Control-Allow-Origin", "*");
-
-                        $this->slimInstance->halt(401,
-                            json_encode(array(
-                                             "message" => "You are not authorized to execute this function",
-                                             "code"    => 401
-                                        )));
+						$authFailedHandler = $this->slimInstance->getAuthFailedHandler();
+						if(!empty($authFailedHandler))
+							call_user_func_array($authFailedHandler, array());
                     }
                 }
             }

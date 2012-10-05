@@ -15,7 +15,7 @@
             return true;
 
         // implement some logic here to return true or false based on a role name
-		return true;
+		return in_array("debug", $roles);
 	});
 
     // run Slim!

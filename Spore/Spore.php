@@ -19,6 +19,8 @@
 		 */
 		private $controller;
 
+		private $authFailedHandler;
+
 		public function __construct($userSettings = array())
 		{
 			parent::__construct($userSettings);
@@ -39,6 +41,7 @@
 
 			$this->setErrorHandler(array($this, "errorHandler")); // add default error handler
 			$this->setNotFoundHandler(array($this, "notFoundHandler")); // add default not found handler
+			$this->setAuthFailedHandler(array($this, "authFailedHandler")); // add default authentication failed handler
 			$this->controller->setAuthCallback(array($this, "defaultAuthCallback")); // add default auth callback
 
 			$classes = $this->controller->getAllPHPServices(); // add auto-routing
@@ -107,6 +110,16 @@
 			$this->notFound($notFoundHandler);
 		}
 
+		public function setAuthFailedHandler($authFailedHandler)
+		{
+			$this->authFailedHandler = $authFailedHandler;
+		}
+
+		public function getAuthFailedHandler()
+		{
+			return $this->authFailedHandler;
+		}
+
 		public function defaultAuthCallback()
 		{
 			return true;
@@ -138,5 +151,15 @@
 														 ));
 
 			$this->halt(Status::NOT_FOUND, $data);
+		}
+
+		public function authFailedHandler()
+		{
+			$this->contentType(Configuration::get("content-type"));
+			$data = Serializer::getSerializedData($this, array(
+															  "message" => "You are not authorized to execute this function"
+														 ));
+
+			$this->halt(Status::UNAUTHORIZED, $data);
 		}
 	}
