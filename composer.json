@@ -15,12 +15,13 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "slim/slim": ">=dev-master",
-        "dannykopping/docblock": ">=dev-master"
+        "dannykopping/docblock": "dev-master",
+        "slim/slim": "2.*"
     },
     "autoload": {
         "psr-0": {
             "Spore": "."
         }
-    }
+    },
+    "minimum-stability": "dev"
 }
