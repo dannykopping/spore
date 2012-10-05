@@ -2,6 +2,7 @@
 	namespace Spore\ReST;
 
 	use Slim\Slim;
+	use Spore\ReST\Data\Deserializer;
 	use ReflectionClass;
 	use Spore\ReST\AutoRoute\AutoRouter;
 	use Spore\ReST\Data\Middleware\DeserializerMiddleware;
@@ -30,7 +31,7 @@
 		private $_authorizationCallback;
 
 		/**
-		 * Initialize the RESTController
+		 * Initialize the Controller
 		 *
 		 * @throws Exception
 		 */
@@ -94,7 +95,7 @@
 		{
 			$app = $this->getApp();
 
-			$deserializer = new DeserializerMiddleware($app);
+			$deserializer = new Deserializer($app);
 			$app->add($deserializer);
 		}
 

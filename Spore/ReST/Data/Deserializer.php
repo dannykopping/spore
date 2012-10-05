@@ -12,10 +12,10 @@
             parent::__construct($app, $settings);
 
             $this->contentTypes = array_merge(array(
-                                                   'application/json' => "JSONDeserializer",
-                                                   'application/xml'  => "XMLDeserializer",
-                                                   'text/xml'         => "XMLDeserializer",
-                                                   'text/csv'         => "CSVDeserializer"
+                                                   'application/json' => "\\Spore\\ReST\\Data\\Deserializer\\JSONDeserializer",
+                                                   'application/xml'  => "\\Spore\\ReST\\Data\\Deserializer\\XMLDeserializer",
+                                                   'text/xml'         => "\\Spore\\ReST\\Data\\Deserializer\\XMLDeserializer",
+                                                   'text/csv'         => "\\Spore\\ReST\\Data\\Deserializer\\CSVDeserializer"
                                               ), $settings);
         }
 
