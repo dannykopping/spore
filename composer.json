@@ -1,7 +1,26 @@
 {
+    "name": "dannykopping/spore",
+    "type": "library",
+    "description": "ReSTful extensions to Slim",
+    "keywords": ["rest", "slim"],
+    "homepage": "https://github.com/dannykopping/spore",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Danny Kopping",
+            "email": "dannykopping@gmail.com",
+            "homepage": "http://dannykopping.com",
+            "role": "Developer"
+        }
+    ],
     "require": {
-        "slim/slim": "dev-master",
-        "doctrine/doctrine1": "dev-master",
-        "dannykopping/docblock": "dev-master"
+        "php": ">=5.3.0",
+        "slim/slim": ">=dev-master",
+        "dannykopping/docblock": ">=dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "Spore": "."
+        }
     }
 }
