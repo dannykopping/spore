@@ -1,19 +1,23 @@
 <?php
 	require_once "vendor/autoload.php";
 
-    require_once dirname(__FILE__) . "/config/config.php";
-    require_once dirname(__FILE__) . "/lib/rest/rest.php";
+	require_once "Spore/Spore.php";
 
 	use Slim\Slim;
+	use Spore\ReST\Data\Middleware\Response;
+	use Spore\Spore;
+	use Spore\ReST\Controller;
+	use Spore\Config\Configuration;
 
 	@session_start();
 
-    $app = new Slim();
+	\Spore\Spore::registerAutoloader();
+    $app = new Spore();
 
     // options
     $app->config("debug", Configuration::get("debug"));
 
-    $controller = RESTController::getInstance();
+    $controller = Controller::getInstance();
     $controller->setApp($app);
 
     // by default, allow any role to access all API operations
@@ -33,6 +37,12 @@
 
     // auto-routing must always be declared AFTER authorization callback
     $controller->addAutoRouting($classes);
+    $app->add(new Response());
+
+	$app->get('/', function()
+	{
+		return ("hi");
+	});
 
     // run Slim!
     $app->run();
