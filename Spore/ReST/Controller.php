@@ -42,14 +42,10 @@
 			if(empty($app))
 				throw new Exception("Controller could not be initialized with an empty Slim instance");
 
-			// set debug mode to the Aerial DEBUG_MODE setting
 			$app->config('debug', Configuration::get("debug"));
 
 			// add Slim middleware to deserialize HTTP request body data
 			$this->addRequestBodyDeserializer();
-
-			// add default Aerial operations
-			$this->addDefaultOperations();
 		}
 
 		/**
@@ -157,24 +153,5 @@
 		public function getAuthCallback()
 		{
 			return $this->_authorizationCallback;
-		}
-
-		private function addDefaultOperations()
-		{
-			$app = $this->getApp();
-
-			$app->get("/", function ()
-			{
-				return array("message" => "Hello World from Aerial Framework");
-			});
-
-			if(Configuration::get("debug"))
-			{
-				// TODO: Add more status info here
-				$app->get("/status", function ()
-				{
-					return array("status" => "operational");
-				});
-			}
 		}
 	}
