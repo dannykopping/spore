@@ -2,6 +2,7 @@
 	namespace Spore\ReST\Data;
 
     use Spore\Config\Configuration;
+	use Slim\Slim;
 	use Exception;
 
 	use Spore\ReST\Data\Serializer\JSONSerializer;
@@ -59,4 +60,30 @@
 
             return $data;
         }
+
+		public static function getSerializedData(Slim $app, $data)
+		{
+			$env                    = $app->environment();
+			$acceptableContentTypes = explode(";", $env["ACCEPT"]);
+
+			$contentType = "";
+
+			if(count($acceptableContentTypes) > 1 || empty($acceptableContentTypes))
+				$contentType = Configuration::get("content-type");
+			else
+				$contentType = $acceptableContentTypes[0];
+
+			// don't allow */* as the content-type, rather favour the default content-type
+			if($contentType == "*/*")
+				$contentType = Configuration::get("content-type");
+
+			$app->contentType($contentType);
+
+			if(is_a($data, "Aerial_Record") || is_a($data, "Doctrine_Collection"))
+				$data = $data->toArray();
+
+			$data = self::serialize($data, $contentType);
+
+			return $data;
+		}
     }

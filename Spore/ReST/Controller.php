@@ -48,15 +48,6 @@
 			// add Slim middleware to deserialize HTTP request body data
 			$this->addRequestBodyDeserializer();
 
-			// define a custom router function
-//			$app->customRouter(array($this, "router"));
-
-			// define a custom error-handling function
-			$app->error(array($this, "errorHandler"));
-
-			// define a 404 handling function
-			$app->notFound(array($this, "notFoundHandler"));
-
 			// add default Aerial operations
 			$this->addDefaultOperations();
 		}
@@ -94,37 +85,6 @@
 
 			$deserializer = new Deserializer($app);
 			$app->add($deserializer);
-		}
-
-		public function errorHandler(Exception $e)
-		{
-			$app = $this->getApp();
-
-			$app->contentType("application/json");
-
-			$app->halt(500, json_encode(array(
-											 "error" => array(
-												 "message" => $e->getMessage(),
-												 "code"    => $e->getCode(),
-												 "file"    => $e->getFile(),
-												 "line"    => $e->getLine(),
-											 )
-										)));
-		}
-
-		public function notFoundHandler()
-		{
-			$app = $this->getApp();
-
-			$app->contentType("application/json");
-			$app->response()->header("Access-Control-Allow-Origin", "*");
-
-			$app->halt(500, json_encode(array(
-											 "error" => array(
-												 "message" => "'" . $app->request()->getResourceUri() . "' could not be resolved to a valid API call",
-												 "code"    => 500
-											 )
-										)));
 		}
 
 		/**

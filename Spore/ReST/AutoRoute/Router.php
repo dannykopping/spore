@@ -44,7 +44,7 @@
 			if($result === null && $result !== false)
 				return true;
 
-			$req = $this->getSerializedData($result);
+			$req = Serializer::getSerializedData($app, $result);
 
 			if(empty($req))
 				return true;
@@ -109,33 +109,5 @@
 			$resp->headers = $response->headers();
 
 			return $resp;
-		}
-
-		private function getSerializedData($rawResponse)
-		{
-			$app = $this->getApp();
-
-			$env                    = $app->environment();
-			$acceptableContentTypes = explode(";", $env["ACCEPT"]);
-
-			$contentType = "";
-
-			if(count($acceptableContentTypes) > 1 || empty($acceptableContentTypes))
-				$contentType = Configuration::get("content-type");
-			else
-				$contentType = $acceptableContentTypes[0];
-
-			// don't allow */* as the content-type, rather favour the default content-type
-			if($contentType == "*/*")
-				$contentType = Configuration::get("content-type");
-
-			$app->contentType($contentType);
-
-			if(is_a($rawResponse, "Aerial_Record") || is_a($rawResponse, "Doctrine_Collection"))
-				$rawResponse = $rawResponse->toArray();
-
-			$data = Serializer::serialize($rawResponse, $contentType);
-
-			return $data;
 		}
 	}

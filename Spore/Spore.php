@@ -2,6 +2,9 @@
 	namespace Spore;
 
 	use Slim\Slim;
+	use Spore\ReST\Model\Status;
+	use Spore\ReST\Data\Serializer;
+	use Exception;
 	use Spore\ReST\Controller;
 	use Spore\Config\Configuration;
 	use Spore\ReST\AutoRoute\Router;
@@ -30,11 +33,15 @@
 		private function init()
 		{
 			$this->controller = Controller::getInstance();
-			$this->router     = new Router($this);
+			$this->router     = new Router($this); // override router class
 
 			$this->controller->setApp($this);
-			$this->controller->setAuthCallback(array($this, "defaultAuthCallback"));
-			$classes = $this->controller->getAllPHPServices();
+
+			$this->setErrorHandler(array($this, "errorHandler")); // add default error handler
+			$this->setNotFoundHandler(array($this, "notFoundHandler")); // add default not found handler
+			$this->controller->setAuthCallback(array($this, "defaultAuthCallback")); // add default auth callback
+
+			$classes = $this->controller->getAllPHPServices(); // add auto-routing
 			$this->controller->addAutoRouting($classes);
 		}
 
@@ -90,8 +97,46 @@
 			$this->controller->setAuthCallback($authorizationCallback);
 		}
 
+		public function setErrorHandler($errorHandler)
+		{
+			$this->error($errorHandler);
+		}
+
+		public function setNotFoundHandler($notFoundHandler)
+		{
+			$this->notFound($notFoundHandler);
+		}
+
 		public function defaultAuthCallback()
 		{
 			return true;
+		}
+
+		public function errorHandler(Exception $e)
+		{
+			$this->contentType(Configuration::get("content-type"));
+			$data = Serializer::getSerializedData($this, array(
+															  "error" => array(
+																  "message" => $e->getMessage(),
+																  "code"    => $e->getCode(),
+																  "file"    => $e->getFile(),
+																  "line"    => $e->getLine(),
+															  )
+														 ));
+
+			$this->halt(Status::INTERNAL_SERVER_ERROR, $data);
+		}
+
+		public function notFoundHandler()
+		{
+			$this->contentType(Configuration::get("content-type"));
+			$data = Serializer::getSerializedData($this, array(
+															  "error" => array(
+																  "message" => "'" . $this->request()->getResourceUri() . "' could not be resolved to a valid API call",
+																  "req"     => $this->request()->getIp()
+															  )
+														 ));
+
+			$this->halt(Status::NOT_FOUND, $data);
 		}
 	}
