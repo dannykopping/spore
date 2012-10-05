@@ -2,6 +2,8 @@
 	namespace Spore;
 
 	use Slim\Slim;
+	use Spore\ReST\Controller;
+	use Spore\Config\Configuration;
 	use Spore\ReST\AutoRoute\Router;
 
 	/**
@@ -9,11 +11,31 @@
 	 */
 	class Spore extends Slim
 	{
+		/**
+		 * @var ReST\Controller
+		 */
+		private $controller;
+
 		public function __construct($userSettings = array())
 		{
 			parent::__construct($userSettings);
+			if(!in_array("debug", $userSettings))
+			{
+				$this->config("debug", Configuration::get("debug"));
+			}
 
-        	$this->router = new Router($this);
+			$this->init();
+		}
+
+		private function init()
+		{
+			$this->controller = Controller::getInstance();
+			$this->router     = new Router($this);
+
+			$this->controller->setApp($this);
+			$this->controller->setAuthCallback(array($this, "defaultAuthCallback"));
+			$classes = $this->controller->getAllPHPServices();
+			$this->controller->addAutoRouting($classes);
 		}
 
 
@@ -63,8 +85,13 @@
 			spl_autoload_register(__NAMESPACE__ . "\\Spore::autoload");
 		}
 
-		public function run()
+		public function setAuthCallback($authorizationCallback)
 		{
-			parent::run();
+			$this->controller->setAuthCallback($authorizationCallback);
+		}
+
+		public function defaultAuthCallback()
+		{
+			return true;
 		}
 	}

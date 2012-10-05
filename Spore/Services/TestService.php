@@ -13,9 +13,10 @@
 		/**
 		 * @url			/hi/:bob
 		 * @verbs		GET,POST
+		 * @auth		bob
 		 */
 		public function hi(Request $req, Response $res)
 		{
-			return (string) ($req|1);
+			return ($req|1);
 		}
 	}
