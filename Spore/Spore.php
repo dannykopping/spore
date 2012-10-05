@@ -62,4 +62,9 @@
 		{
 			spl_autoload_register(__NAMESPACE__ . "\\Spore::autoload");
 		}
+
+		public function run()
+		{
+			parent::run();
+		}
 	}

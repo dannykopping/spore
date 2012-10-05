@@ -3,7 +3,6 @@
 	require_once "Spore/Spore.php";
 
 	use Slim\Slim;
-	use Spore\ReST\Data\Middleware\Response;
 	use Spore\Spore;
 	use Spore\ReST\Controller;
 	use Spore\Config\Configuration;
@@ -36,7 +35,6 @@
 
     // auto-routing must always be declared AFTER authorization callback
     $controller->addAutoRouting($classes);
-    $app->add(new Response());
 
     // run Slim!
     $app->run();

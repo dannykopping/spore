@@ -13,12 +13,12 @@
     /**
      * Debug mode - show debugging messages and data if TRUE
      */
-    Configuration::set("debug", false);
+    Configuration::set("debug", true);
 
     /**
      * The default encoding of the response data
      */
-    Configuration::set("content-type", "application/json");
+    Configuration::set("content-type", "application/xml");
 
     /**
      * GZIP compression of output data
@@ -34,17 +34,6 @@
      * The namespace of the services (optional)
      */
     Configuration::set("services-ns", "Spore\\Services");
-
-
-	/**
-	 * Database connection
-	 */
-	Configuration::set("DB_ENGINE", "mysql");
-	Configuration::set("DB_USERNAME", "");
-	Configuration::set("DB_PASSWORD", "");
-	Configuration::set("DB_HOST", "localhost");
-	Configuration::set("DB_PORT", "");
-	Configuration::set("DB_SCHEMA", "");
 
 	Configuration::load();
 
