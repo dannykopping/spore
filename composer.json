@@ -1,0 +1,7 @@
+{
+    "require": {
+        "slim/slim": "dev-master",
+        "doctrine/doctrine1": "dev-master",
+        "dannykopping/docblock": "dev-master"
+    }
+}
