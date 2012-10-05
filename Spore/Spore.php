@@ -44,6 +44,11 @@
 			$this->setAuthFailedHandler(array($this, "authFailedHandler")); // add default authentication failed handler
 			$this->controller->setAuthCallback(array($this, "defaultAuthCallback")); // add default auth callback
 
+			$this->updateAutoRoutes();
+		}
+
+		public function updateAutoRoutes()
+		{
 			$classes = $this->controller->getAllPHPServices(); // add auto-routing
 			$this->controller->addAutoRouting($classes);
 		}

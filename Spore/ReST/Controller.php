@@ -126,7 +126,6 @@
 		{
 			$app = $this->getApp();
 			$router = new AutoRouter($app, $classes);
-//			$app->registerPlugin("AutoRouter", $classes);
 		}
 
 		public function setAuthCallback($authorizationCallback)
@@ -134,8 +133,6 @@
 			$app = $this->getApp();
 			$access = new AccessController($app);
 			$access->authorizationCallback($authorizationCallback);
-
-//			$app->registerPlugin("AccessController");
 
 			if(!is_callable($authorizationCallback))
 			{
