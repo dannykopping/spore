@@ -11,7 +11,7 @@ You can find the [Packagist](https://packagist.org) page for Spore [here](https:
 
 In your `composer.json` file, add:
 
-```
+```json
 ...
     "require": {  "dannykopping/spore": "dev-master"  }
 ...
@@ -41,7 +41,7 @@ If you've used [Slim Framework](http://slimframework.com) before, you'll be able
 
 Create a new **PHP** page and use the following code:
 
-```
+```php
 <?php
 	require_once "vendor/autoload.php";
 
@@ -73,6 +73,6 @@ RewriteRule ^ index.php [QSA,L]
 
 Now, navigate to your **PHP** page in your browser and you will see the following output:
 
-```
+```json
 {"message":"Hello World from Spore"}
 ```
