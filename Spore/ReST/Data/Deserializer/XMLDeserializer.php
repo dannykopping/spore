@@ -2,6 +2,8 @@
 	namespace Spore\ReST\Data\Deserializer;
 
 	use Spore\ReST\Data\Deserializer\Base;
+	use SimpleXMLElement;
+	use stdClass;
 
 	class XMLDeserializer extends Base
 	{

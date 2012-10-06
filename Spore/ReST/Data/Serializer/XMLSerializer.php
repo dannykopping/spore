@@ -2,6 +2,8 @@
 	namespace Spore\ReST\Data\Serializer;
 
 	use Spore\ReST\Data\Serializer\Base;
+	use SimpleXMLElement;
+	use stdClass;
 
     /**
      * @see http://www.sean-barton.co.uk/2009/03/turning-an-array-or-object-into-xml-using-php/

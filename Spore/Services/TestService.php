@@ -33,8 +33,8 @@
 		}
 
 		/**
-		 * @url			/example3/:param1+:param2
-		 * @verbs		POST
+		 * @url			/example3/:param1/:param2
+		 * @verbs		GET
 		 */
 		public function example3(Request $request, Response $response)
 		{
