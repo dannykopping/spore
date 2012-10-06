@@ -3,7 +3,6 @@
 
     use Spore\ReST\Data\Middleware\DeserializerMiddleware;
 	use Exception;
-	use Spore\Config\Configuration;
 
 	class Deserializer extends DeserializerMiddleware
     {
@@ -37,7 +36,7 @@
             if(empty($data))
                 return $data;
 
-            $defaultContentType = Configuration::get("content-type");
+            $defaultContentType = $this->getApplication()->config("content-type");
             $deserializer = $this->contentTypes[$contentType];
             if(!isset($deserializer))
                 $deserializer = $this->contentTypes[$defaultContentType];

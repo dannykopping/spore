@@ -6,7 +6,6 @@
 	use Spore\ReST\Data\Serializer;
 	use Exception;
 	use Spore\ReST\Controller;
-	use Spore\Config\Configuration;
 	use Spore\ReST\AutoRoute\Router;
 
 	/**
@@ -24,12 +23,24 @@
 		public function __construct($userSettings = array())
 		{
 			parent::__construct($userSettings);
-			if(!in_array("debug", $userSettings))
-			{
-				$this->config("debug", Configuration::get("debug"));
-			}
 
+			$this->settings = array_merge(self::getDefaultSettings(), $userSettings);
 			$this->init();
+		}
+
+		public static function getDefaultSettings()
+		{
+			$default = parent::getDefaultSettings();
+
+			$extended = array(
+				"debug" => "true",
+				"content-type" => "application/json",
+				"gzip" => true,
+				"services" => realpath(__DIR__."/Services"),
+				"services-ns" => "Spore\\Services"
+			);
+
+			return array_merge($default, $extended);
 		}
 
 		private function init()
@@ -132,7 +143,7 @@
 
 		public function errorHandler(Exception $e)
 		{
-			$this->contentType(Configuration::get("content-type"));
+			$this->contentType($this->config("content-type"));
 			$data = Serializer::getSerializedData($this, array(
 															  "error" => array(
 																  "message" => $e->getMessage(),
@@ -147,7 +158,7 @@
 
 		public function notFoundHandler()
 		{
-			$this->contentType(Configuration::get("content-type"));
+			$this->contentType($this->config("content-type"));
 			$data = Serializer::getSerializedData($this, array(
 															  "error" => array(
 																  "message" => "'" . $this->request()->getResourceUri() . "' could not be resolved to a valid API call",
@@ -160,7 +171,7 @@
 
 		public function authFailedHandler()
 		{
-			$this->contentType(Configuration::get("content-type"));
+			$this->contentType($this->config("content-type"));
 			$data = Serializer::getSerializedData($this, array(
 															  "message" => "You are not authorized to execute this function"
 														 ));

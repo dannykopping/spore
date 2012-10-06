@@ -1,8 +1,8 @@
 <?php
 	namespace Spore\ReST\Data;
 
-    use Spore\Config\Configuration;
 	use Slim\Slim;
+	use Spore\Spore;
 	use Exception;
 
 	use Spore\ReST\Data\Serializer\JSONSerializer;
@@ -14,6 +14,8 @@
 
         public static function serialize($data, $contentType)
         {
+			$app = Spore::getInstance();
+
             self::$contentTypes = array(
                 'application/json' => "\\Spore\\ReST\\Data\\Serializer\\JSONSerializer",
                 'application/xml'  => "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
@@ -21,7 +23,7 @@
             );
 
             // add common content-types - set them to use the default content-type
-            $defaultContentType = Configuration::get("content-type");
+            $defaultContentType = $app->config("content-type");
             $defaultSerializer = self::$contentTypes[$defaultContentType];
 
             if(isset($defaultSerializer))
@@ -38,10 +40,12 @@
 
         private static function parse($data, $contentType)
         {
+			$app = Spore::getInstance();
+
             if(!is_array($data) && empty($data))
                 return $data;
 
-            $defaultContentType = Configuration::get("content-type");
+            $defaultContentType = $app->config("content-type");
             $serializer = self::$contentTypes[$contentType];
             if(!isset($serializer))
                 $serializer = self::$contentTypes[$defaultContentType];
@@ -69,13 +73,13 @@
 			$contentType = "";
 
 			if(count($acceptableContentTypes) > 1 || empty($acceptableContentTypes))
-				$contentType = Configuration::get("content-type");
+				$contentType = $app->config("content-type");
 			else
 				$contentType = $acceptableContentTypes[0];
 
 			// don't allow */* as the content-type, rather favour the default content-type
 			if($contentType == "*/*")
-				$contentType = Configuration::get("content-type");
+				$contentType = $app->config("content-type");
 
 			$app->contentType($contentType);
 

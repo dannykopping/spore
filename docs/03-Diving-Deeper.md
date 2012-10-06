@@ -291,7 +291,7 @@ If you look in the `Spore.php` file, you will see two functions - `errorHandler`
 ```php
 public function errorHandler(Exception $e)
 {
-	$this->contentType(Configuration::get("content-type"));
+	$this->contentType($this->config("content-type"));
 	$data = Serializer::getSerializedData($this, array(
 													  "error" => array(
 														  "message" => $e->getMessage(),
@@ -306,7 +306,7 @@ public function errorHandler(Exception $e)
 
 public function notFoundHandler()
 {
-	$this->contentType(Configuration::get("content-type"));
+	$this->contentType($this->config("content-type"));
 	$data = Serializer::getSerializedData($this, array(
 													  "error" => array(
 														  "message" => "'" . $this->request()->getResourceUri() . "' could not be resolved to a valid API call",
@@ -347,7 +347,7 @@ The default `authFailedHandler` is rather simple:
 ```php
 public function authFailedHandler()
 {
-	$this->contentType(Configuration::get("content-type"));
+	$this->contentType($this->config("content-type"));
 	$data = Serializer::getSerializedData($this, array(
 													  "message" => "You are not authorized to execute this function"
 												 ));
@@ -524,7 +524,9 @@ The `\Spore\ReST\Model\Response` class also has access to the internal **Slim** 
 ## Configuration
 **Spore** contains a number of useful, configurable properties.
 
-You can find the `Configuration` class at `/vendor/dannykopping/spore/Spore/Config/Configuration.php`. The `Configuration` class exposes two key static functions: `get` and `set`. You can either change the configuration values in the `Configuration.php` file, or you override the values in your own project. The latter is preferable when working with `Composer`.
+The **Spore** configuration works off the native Slim `config` functionality. Simply use it as you would normally use the Slim configuration.
+
+See [the Slim documentation](http://docs.slimframework.com/pages/configure-settings/) for more information.
 
 #### Configuration Options
 <table width="100%">
@@ -572,15 +574,11 @@ Here's an example of how you can override a configuration value:
 require_once "vendor/autoload.php";
 
 use Spore\Spore;
-use Spore\Config\Configuration;
 
-Configuration::set("debug", false);
-
-$app = new Spore();
-
-$app->get("/", function ()
+$app = new Spore(array("debug" => false));
+$app->get("/", function () use ($app)
 {
-	return array("message" => "Hello World from Spore", "debugModeEnabled" => Configuration::get("debug"));
+	return array("message" => "Hello World from Spore", "debugModeEnabled" => $app->config("debug"));
 });
 
 $app->run();

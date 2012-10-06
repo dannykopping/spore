@@ -4,7 +4,6 @@
 	use Slim\Slim;
 	use Spore\ReST\Model\Response;
 	use Spore\ReST\Data\Serializer;
-	use Spore\Config\Configuration;
 	use Spore\ReST\Model\Request;
 
 	/**
@@ -50,7 +49,7 @@
 				return true;
 
 			// return gzip-encoded data
-			$gzipEnabled = Configuration::get("gzip");
+			$gzipEnabled = $app->config("gzip");
 			if(substr_count($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") && extension_loaded("zlib") && $gzipEnabled)
 			{
 				$app->response()->header("Content-Encoding", "gzip");
