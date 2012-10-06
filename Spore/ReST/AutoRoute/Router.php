@@ -78,8 +78,9 @@
 			$app = $this->getApp();
 			$env = $app->environment();
 
-			$data = array();
-			$body = $app->request()->getBody();
+			$data    = array();
+			$body    = $app->request()->getBody();
+			$request = $app->request();
 
 			if(!empty($params))
 				$req->params = $params;
@@ -92,6 +93,8 @@
 				parse_str($env["QUERY_STRING"], $query);
 				$req->queryParams = $query;
 			}
+
+			$req->setRequest($request);
 
 			return $req;
 		}
@@ -106,6 +109,7 @@
 			$app      = $this->getApp();
 			$response = $app->response();
 
+			$resp->setResponse($response);
 			$resp->headers = $response->headers();
 
 			return $resp;

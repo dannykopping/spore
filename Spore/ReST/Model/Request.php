@@ -18,14 +18,23 @@
 		 */
 		public $params = array();
 
+		/**
+		 * @var \Slim\Http\Request
+		 */
+		private $request;
 
-		public function __get($name)
+		/**
+		 * Slim Response object
+		 *
+		 * @return \Slim\Http\Request
+		 */
+		public function request()
 		{
-			return $this->$name;
+			return $this->request;
 		}
 
-		public function __set($name, $value)
+		public function setRequest($request)
 		{
-			$this->$name = $value;
+			$this->request = $request;
 		}
 	}
