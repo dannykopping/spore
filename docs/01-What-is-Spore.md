@@ -22,14 +22,15 @@ Spore is a set of useful extensions to the [Slim Framework](http://www.slimframe
 ### Documentation
 * **1** [Welcome to Spore](01-What-is-Spore.md) (**you are here**)
 * **2** [Getting Started](02-Getting-Started.md)
-  * **2.1** Installation via `Composer`
-  * **2.2** Hello Spore!
-  * **2.3** Using the examples
+  * **2.1** [Installation via Composer](02-Getting-Started.md#installation-via-composer)
+  * **2.2** [Hello Spore!](02-Getting-Started.md#hello-spore)
+  * **2.3** [Using the examples](02-Getting-Started.md#using-the-examples)
 * **3** Diving Deeper
-  * **3.1** Serialization
-  * **3.2** Authentication
-  * **3.3** Handlers
-  * **3.4** `Request` & `Response`
+  * **3.1** Routing and Annotations
+  * **3.2** Serialization
+  * **3.3** Authentication
+  * **3.4** Handlers
+  * **3.5** `Request` & `Response`
 * **4** Contributing
 * **5** Useful links
 * **6** Tools

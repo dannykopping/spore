@@ -78,3 +78,58 @@ Now, navigate to your **PHP** page in your browser and you will see the followin
 ```json
 {"message":"Hello World from Spore"}
 ```
+
+---
+
+## Using the examples
+
+In your project, open the file `TestService.php` located under `/vendor/dannykopping/spore/Spore/Services`.
+
+Have a look at the first function in the class:
+
+```php
+/**
+ * @url			/example1
+ * @verbs		GET
+ */
+public function example1()
+{
+	return array("some" => "complex", "data" => "in an array",
+					"with" => array("nesting"));
+}
+```
+
+Before we deconstruct this, navigate to `http://path/to/spore/example1` and observe what happens… the URL returns some JSON:
+
+```json
+{
+    "some": "complex",
+    "data": "in an array",
+    "with": [
+        "nesting"
+    ]
+}
+```
+
+Notice how it reflects what we **returned** from the function `TestService->example1()`:
+
+```php
+return array("some" => "complex", "data" => "in an array",
+					"with" => array("nesting"));
+```
+
+So, how did **Spore** know to route the request URL `/example1` to this function and respond to the `GET` verb?
+
+```php
+/**
+ * @url			/example1
+ * @verbs		GET
+ */
+```
+In **Spore**, you can simply annotate your functions with ReSTful metadata (such as `@url`, `@verbs` and `@auth`). You can find out more about **Routing and Annotations** in the next chapter.
+
+#### Explore!
+There are 8 examples in `TestService.php` which show off some of the things you can do with Spore. Explore, have fun and contribute some of your own ;)
+
+###Feel like diving deeper?
+Head over to the **next chapter**
