@@ -4,13 +4,6 @@
 	date_default_timezone_set("UTC");
 
     /**
-     * The path to the config folder
-     *
-     * @see /projectroot/config
-     */
-    Configuration::set("config", dirname(__FILE__));
-
-    /**
      * Debug mode - show debugging messages and data if TRUE
      */
     Configuration::set("debug", true);
