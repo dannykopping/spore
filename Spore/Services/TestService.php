@@ -14,7 +14,7 @@
 		 * @url			/example1
 		 * @verbs		GET
 		 */
-		public function example1(Request $request, Response $response)
+		public function example1()
 		{
 			return array("some" => "complex", "data" => "in an array",
 						 	"with" => array("nesting"));
@@ -93,5 +93,17 @@
 			$response->headers["Look Ma"] = "No hands!";
 
 			return "Look at the header!";
+		}
+
+		/**
+		 * @url			/example8
+		 * @verbs		GET
+		 */
+		public function example8()
+		{
+			// prevent all subsequent serialization by using `echo` instead of returning data
+			// NOTE: doing this will not set the Content-Type header to the appropriate type
+
+			echo json_encode(array("Hey!" => "See, I can do my own serialization!"));
 		}
 	}
