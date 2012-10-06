@@ -20,8 +20,8 @@ Spore is a set of useful extensions to the [Slim Framework](http://www.slimframe
 ---
 
 ### Documentation
-* **1** Welcome to Spore (**you are here**)
-* **2** [Getting Started](02-Getting-Started)
+* **1** [Welcome to Spore](01-What-is-Spore.md) (**you are here**)
+* **2** [Getting Started](02-Getting-Started.md)
   * **2.1** Installation via `Composer`
   * **2.2** Hello Spore!
   * **2.3** Using the examples
@@ -33,4 +33,5 @@ Spore is a set of useful extensions to the [Slim Framework](http://www.slimframe
 * **4** Contributing
 * **5** Useful links
 * **6** Tools
+* **7** About the author
 
