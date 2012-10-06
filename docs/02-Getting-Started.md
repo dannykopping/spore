@@ -12,9 +12,11 @@ You can find the [Packagist](https://packagist.org) page for Spore [here](https:
 In your `composer.json` file, add:
 
 ```json
-...
-    "require": {  "dannykopping/spore": "dev-master"  }
-...
+{
+	"require": {
+		"dannykopping/spore": "dev-master"
+	}
+}
 ```
 
 After you've done this, run `php composer.phar update` and *Composer* will download the latest **Spore** to your `vendors` folder.
@@ -58,7 +60,7 @@ Create a new **PHP** page and use the following code:
 
 If you're using Apache webserver, add this to your `.htaccess` file or create one:
 
-```
+```apache
 RewriteEngine On
 
 # Some hosts may require you to use the `RewriteBase` directive.
