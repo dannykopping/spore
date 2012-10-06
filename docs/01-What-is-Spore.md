@@ -30,10 +30,10 @@ Spore is a set of useful extensions to the [Slim Framework](http://www.slimframe
   * **3.2** [Serialization](03-Diving-Deeper.md#serialization)
   * **3.3** [Authentication](03-Diving-Deeper.md#authentication)
   * **3.4** [Handlers](03-Diving-Deeper.md#handlers)
-  * **3.5** `Request` & `Response`
-  * **3.6** Configuration
-* **4** Contributing
-* **5** Useful links
-* **6** Tools
-* **7** About the author
+  * **3.5** [`Request` & `Response`](03-Diving-Deeper.md#request-and-response)
+  * **3.6** [Configuration](03-Diving-Deeper.md#configuration)
+* **4** [Contributing](04-Contributing.md)
+* **5** [Useful links](05-Useful-Links.md)
+* **6** [Tools](06-Tools.md)
+* **7** [About the author](07-About-the-author.md)
 

@@ -378,3 +378,210 @@ $app->setAuthFailedHandler(function() use ($app)
 
 $app->run();
 ```
+
+### Request and Response
+In every **auto-route**, the two default parameters of every callback function are:
+`\Spore\ReST\Model\Request $request` and `\Spore\ReST\Model\Response $response`. These classes are convenience classes meant to help you with common API tasks.
+
+#### Request
+The `Request` class will be constructed and passed to the **auto-route** with several useful properties:
+
+<table width="100%">
+	<tr>
+		<th>Name</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td>data</td>
+		<td>The deserialized request body</td>
+	</tr>
+	<tr>
+		<td>params</td>
+		<td>An associative array of params passed to a Slim route (e.g. <code>/example/:param1/:param2</code>)<br/>
+		<code>/example/abc/123</code> results in <code>array("param1" => "abc", "param2" => "123")</code></td>
+	</tr>
+	<tr>
+		<td>queryParams</td>
+		<td>An associative array of query string params (e.g. <code>/example?name=danny</code> results in <code>array("name" => "danny")</code>)</td>
+	</tr>
+</table>
+
+You can combine all 3 of these different request data types. See the example below:
+
+**PHP code**
+
+```php
+/**
+ * @url			/req-data/:num1+:num2
+ * @verbs		POST
+ */
+public function reqData(Request $request, Response $response)
+{
+	return $request;
+}
+```
+
+**HTTP Request**
+
+```http
+POST /projects/spore/req-data/123/456?hello=spore HTTP/1.1
+Host: localhost
+Content-Length: 65
+Origin: chrome-extension://hgmloofddffdnphfgcellkdfbfbjeloo
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.79 Safari/537.4
+Content-Type: application/json
+Accept: */*
+Accept-Encoding: gzip,deflate,sdch
+Accept-Language: en-US,en;q=0.8
+Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.3
+Cookie: splashShown1.5=1; PHPSESSID=e8d6cce60ba5c3471db80bb6b110400e
+Pragma: no-cache
+Cache-Control: no-cache
+
+{"question":"What is the meaning of life?", "type":"existential"}
+```
+
+**JSON Response**
+
+```json
+{
+    "data": {
+        "question": "What is the meaning of life?",
+        "type": "existential"
+    },
+    "queryParams": {
+        "hello": "spore"
+    },
+    "params": {
+        "num1": "123",
+        "num2": "456"
+    }
+}
+```
+
+The `\Spore\ReST\Model\Request` class also has access to the internal **Slim** `Request` class - and you can access it as follows:
+
+`$request->request()`
+
+#### Response
+The `Response` class will be constructed and passed to the **auto-route** with several useful properties:
+
+<table width="100%">
+	<tr>
+		<th>Name</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td>status</td>
+		<td>The HTTP status code to return.<br/>See <code>Spore\ReST\Model\Status</code> for a list of appropriate HTTP statuses</td>
+	</tr>
+	<tr>
+		<td>headers</td>
+		<td>An associative array of HTTP headers to return</td>
+	</tr>
+</table>
+
+You can use these properties as follows:
+
+**PHP code**
+
+```php
+/**
+ * @url			/response-example
+ * @verbs		GET
+ */
+public function responseExample(Request $request, Response $response)
+{
+	$response->status = Status::PAYMENT_REQUIRED;
+	$response->headers["Secret-Code"] = "1234";
+	
+	return "Greetings";
+}
+```
+
+**HTTP Response**
+
+```http
+HTTP/1.1 402 Payment Required
+Date: Sat, 06 Oct 2012 14:13:04 GMT
+Server: Apache/2.2.14 (Unix) DAV/2 mod_ssl/2.2.14 OpenSSL/0.9.8l PHP/5.3.1 mod_perl/2.0.4 Perl/v5.10.1
+X-Powered-By: PHP/5.3.1
+Secret-Code: 1234
+Content-Encoding: gzip
+Vary: Accept-Encoding
+Content-Length: 31
+Content-Type: application/json
+Expires: 0
+Cache-Control: no-cache
+
+"Greetings"
+```
+
+The `\Spore\ReST\Model\Response` class also has access to the internal **Slim** `Response` class - and you can access it as follows:
+
+`$response->response()`
+
+## Configuration
+**Spore** contains a number of useful, configurable properties.
+
+You can find the `Configuration` class at `/vendor/dannykopping/spore/Spore/Config/Configuration.php`. The `Configuration` class exposes two key static functions: `get` and `set`. You can either change the configuration values in the `Configuration.php` file, or you override the values in your own project. The latter is preferable when working with `Composer`.
+
+#### Configuration Options
+<table width="100%">
+	<tr>
+		<th>Name</th>
+		<th>Description</th>
+		<th>Default</th>
+		<th>Options</th>
+	</tr>
+	<tr>
+		<td>debug</td>
+		<td>Debug mode</td>
+		<td><code>true</code></td>
+		<td><code>boolean</code></td>
+	</tr>
+	<tr>
+		<td>content-type</td>
+		<td>The default content encoding type</td>
+		<td><code>application/json</code></td>
+		<td>See <a href="#acceptable-serialization-formats">Acceptable serialization formats</a></td>
+	</tr>
+	<tr>
+		<td>gzip</td>
+		<td>GZIP compression</td>
+		<td><code>true</code></td>
+		<td><code>boolean</code></td>
+	</tr>
+	<tr>
+		<td>services</td>
+		<td>Path to classes to be analyzed for <em>auto-routing</em></td>
+		<td><code>Spore/Services</code> (contains sample classes)</td>
+		<td>file path</td>
+	</tr>
+	<tr>
+		<td>services-ns</td>
+		<td>The namespace of the classes to be analyzed for <em>auto-routing</em></td>
+		<td><code>Spore\Services</code></td>
+		<td><code>string</code> or <code>null</code></td>
+	</tr>
+</table>
+
+Here's an example of how you can override a configuration value:
+
+```php
+require_once "vendor/autoload.php";
+
+use Spore\Spore;
+use Spore\Config\Configuration;
+
+Configuration::set("debug", false);
+
+$app = new Spore();
+
+$app->get("/", function ()
+{
+	return array("message" => "Hello World from Spore", "debugModeEnabled" => Configuration::get("debug"));
+});
+
+$app->run();
+```
