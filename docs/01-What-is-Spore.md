@@ -9,6 +9,7 @@ Spore is a set of useful extensions to the [Slim Framework](http://www.slimframe
 
 **PLUS**
 
+* **Composer** integration
 * **Annotation-based** request routing
 * Automatic **deserialization and serialization** of data
 * Simple, but effective **authentication** mechanism
@@ -20,7 +21,7 @@ Spore is a set of useful extensions to the [Slim Framework](http://www.slimframe
 
 ### Documentation
 * **1** Welcome to Spore (**you are here**)
-* **2** [Getting Started](wiki/02-Getting-Started)
+* **2** [Getting Started](02-Getting-Started)
   * **2.1** Installation via `Composer`
   * **2.2** Hello Spore!
   * **2.3** Using the examples
