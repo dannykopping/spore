@@ -18,7 +18,7 @@
     /**
      * The default encoding of the response data
      */
-    Configuration::set("content-type", "application/xml");
+    Configuration::set("content-type", "application/json");
 
     /**
      * GZIP compression of output data
