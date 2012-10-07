@@ -13,7 +13,6 @@
 	use Spore\Auth\AccessController;
 	use RecursiveDirectoryIterator;
 	use RecursiveIteratorIterator;
-	use Spore\Config\Configuration;
 	use Exception;
 
 	/**
@@ -41,8 +40,6 @@
 
 			if(empty($app))
 				throw new Exception("Controller could not be initialized with an empty Slim instance");
-
-			$app->config('debug', Configuration::get("debug"));
 
 			// add Slim middleware to deserialize HTTP request body data
 			$this->addRequestBodyDeserializer();
@@ -91,8 +88,10 @@
 		 */
 		public function getAllPHPServices()
 		{
-			$servicesDir 	= Configuration::get("services");
-			$servicesNS 	= Configuration::get("services-ns");
+			$app = $this->getApp();
+
+			$servicesDir 	= $app->config("services");
+			$servicesNS 	= $app->config("services-ns");
 			$files          = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($servicesDir), RecursiveIteratorIterator::LEAVES_ONLY);
 			$classes        = array();
 
