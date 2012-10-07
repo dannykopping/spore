@@ -93,11 +93,10 @@
                     $slimRoute = $this->getSlimInstance()->map($route->getUri(), $route->getCallback());
                     foreach ($route->getMethods() as $method)
                         $slimRoute->via($method);
-
-					$this->getSlimInstance()->autorouteMap($route->getUri(), $route);
                 }
             }
 
+			$this->getSlimInstance()->routes = $allRoutes;
             $this->routes = $allRoutes;
             $this->slimInstance->applyHook("slim.plugin.autoroute.ready", $allRoutes);
         }

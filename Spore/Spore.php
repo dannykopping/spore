@@ -184,20 +184,13 @@
 			$this->halt(Status::UNAUTHORIZED, $data);
 		}
 
-		/**
-		 * @param                      $uri
-		 * @param ReST\AutoRoute\Route $route
-		 *
-		 * @return ReST\AutoRoute\Route
-		 */
-		public function autorouteMap($uri, Route $route=null)
+		public function setAutoroutes($autoroutes)
 		{
-			if(empty($this->autoroutes))
-				$this->autoroutes = array();
+			$this->autoroutes = $autoroutes;
+		}
 
-			if(empty($route))
-				return isset($this->autoroutes[$uri]) ? $this->autoroutes[$uri] : null;
-
-			$this->autoroutes[$uri] = $route;
+		public function getAutoroutes()
+		{
+			return $this->autoroutes;
 		}
 	}

@@ -34,7 +34,13 @@
 			$params   = $route->getParams();
 			$callable = $route->getCallable();
 
-			$autoroute = $app->autorouteMap($app->request()->getResourceUri());
+			$autoroute = null;
+			foreach($app->routes as $r)
+			{
+				$matches = $route->matches($r->getUri());
+				if($matches)
+					$autoroute = $r;
+			}
 
 			$req  = $this->getRequestData($route, $params);
 			$resp = $this->getResponseData();
@@ -48,7 +54,7 @@
 			if($result === null && $result !== false)
 				return true;
 
-			if($autoroute->getTemplate())
+			if($autoroute && $autoroute->getTemplate())
 			{
 				$template = $autoroute->getTemplate();
 				$renderMode = $autoroute->getRender();
