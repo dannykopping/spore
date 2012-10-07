@@ -13,11 +13,12 @@
 
 	class AutoRouter extends Base
     {
-        private $classes;
+		private $classes;
 
-        private $routes;
+		private $routes;
 
-        const ROUTE = "url";
+		const NAME = "name";
+		const ROUTE = "url";
         const VERBS = "verbs";
         const AUTH = "auth";
         const TEMPLATE = "template";
@@ -93,6 +94,12 @@
                     $slimRoute = $this->getSlimInstance()->map($route->getUri(), $route->getCallback());
                     foreach ($route->getMethods() as $method)
                         $slimRoute->via($method);
+
+					$name = $route->getName();
+					if(!empty($name))
+					{
+						$slimRoute->name($name);
+					}
                 }
             }
 
@@ -135,12 +142,14 @@
             if(!$uri)
                 return null;
 
+			$name = $this->getNameAnnotation($method);
             $httpMethods = $this->getRouteMethods($method);
             $authorizedUsers = $this->getAuthorizedUsers($method);
             $template = $this->getTemplateAnnotation($method);
             $render = $this->getRenderAnnotation($method);
 
             $route = new Route($descriptor);
+            $route->setName($name);
             $route->setUri($uri);
             $route->setMethods($httpMethods);
             $route->setAuthorizedUsers($authorizedUsers);
@@ -234,6 +243,16 @@
 				return "always";
 
 			return $renderAnnotation->values[0];
+		}
+
+		private function getNameAnnotation($method)
+		{
+            $nameAnnotation = $method->getAnnotation(self::NAME);
+
+            if(empty($nameAnnotation) || count($nameAnnotation->values) < 1)
+				return null;
+
+			return $nameAnnotation->values[0];
 		}
 	}
 

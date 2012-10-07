@@ -15,6 +15,7 @@
      */
     class Route
     {
+        private $_name;
         private $_uri;
         private $_arguments;
         private $_authorizedUsers;
@@ -28,48 +29,6 @@
         public function __construct(RouteDescriptor $descriptor)
         {
             $this->_descriptor = $descriptor;
-        }
-
-        /**
-         * Setter super method to manipulate variables as they are assigned a value
-         *
-         * @param $name
-         * @param $value
-         */
-        public function __set($name, $value)
-        {
-            switch ($name)
-            {
-                case AutoRouter::VERBS:
-                case AutoRouter::AUTH:
-                    if (empty($value))
-                        break;
-
-                    foreach ($value as &$item)
-                    {
-                        // if the item in the array is a string, trim the extraneous whitespace from it
-                        if (is_string($item) && !empty($value))
-                            $item = trim($item);
-                    }
-
-                    $this->{"_" . $name} = $value;
-
-                    break;
-                default:
-                    $this->{"_" . $name} = is_string($value) ? trim($value) : $value;
-                    break;
-            }
-        }
-
-        /**
-         *    Getter super method to retrieve a variable
-         *
-         * @param $name
-         * @return mixed
-         */
-        public function __get($name)
-        {
-            return $this->{"_" . $name};
         }
 
         public function __toString()
@@ -161,6 +120,16 @@
 		public function getRender()
 		{
 			return $this->_render;
+		}
+
+		public function setName($name)
+		{
+			$this->_name = trim($name);
+		}
+
+		public function getName()
+		{
+			return $this->_name;
 		}
 	}
 
