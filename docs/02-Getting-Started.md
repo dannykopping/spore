@@ -132,4 +132,4 @@ In **Spore**, you can simply annotate your functions with ReSTful metadata (such
 There are 8 examples in `TestService.php` which show off some of the things you can do with Spore. Explore, have fun and contribute some of your own ;)
 
 ###Feel like diving deeper?
-Head over to the **next chapter**
+Head over to the [**next chapter**](03-Diving-Deeper.md)
