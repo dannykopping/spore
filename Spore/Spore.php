@@ -2,6 +2,7 @@
 	namespace Spore;
 
 	use Slim\Slim;
+	use Spore\ReST\AutoRoute\Route;
 	use Spore\ReST\Model\Status;
 	use Spore\ReST\Data\Serializer;
 	use Exception;
@@ -19,10 +20,14 @@
 		 */
 		private $controller;
 
+		private $autoroutes;
+
 		private $authFailedHandler;
 
 		public function __construct($userSettings = array())
 		{
+			$this->autoroutes = array();
+
 			parent::__construct($userSettings);
 			if(!in_array("debug", $userSettings))
 			{
@@ -166,5 +171,22 @@
 														 ));
 
 			$this->halt(Status::UNAUTHORIZED, $data);
+		}
+
+		/**
+		 * @param                      $uri
+		 * @param ReST\AutoRoute\Route $route
+		 *
+		 * @return ReST\AutoRoute\Route
+		 */
+		public function autorouteMap($uri, Route $route=null)
+		{
+			if(empty($this->autoroutes))
+				$this->autoroutes = array();
+
+			if(empty($route))
+				return isset($this->autoroutes[$uri]) ? $this->autoroutes[$uri] : null;
+
+			$this->autoroutes[$uri] = $route;
 		}
 	}

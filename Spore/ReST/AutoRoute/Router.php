@@ -21,6 +21,9 @@
 			$this->app = $app;
 		}
 
+		/**
+		 * @return \Spore\Spore
+		 */
 		public function getApp()
 		{
 			return $this->app;
@@ -31,6 +34,8 @@
 			$app      = $this->getApp();
 			$params   = $route->getParams();
 			$callable = $route->getCallable();
+
+			$autoroute = $app->autorouteMap($app->request()->getResourceUri());
 
 			$req  = $this->getRequestData($route, $params);
 			$resp = $this->getResponseData();
@@ -43,6 +48,29 @@
 			// if there is no response data, return a blank response
 			if($result === null && $result !== false)
 				return true;
+
+			if($autoroute->getTemplate())
+			{
+				$template = $autoroute->getTemplate();
+				$renderMode = $autoroute->getRender();
+
+				switch($renderMode)
+				{
+					case "always":
+						$app->render($template, $result);
+						return true;
+						break;
+					case "never":
+						break;
+					default:
+						if(!$app->request()->isAjax())
+						{
+							$app->render($template, $result);
+							return true;
+						}
+						break;
+				}
+			}
 
 			$req = Serializer::getSerializedData($app, $result);
 

@@ -20,6 +20,8 @@
         const ROUTE = "url";
         const VERBS = "verbs";
         const AUTH = "auth";
+        const TEMPLATE = "template";
+        const RENDER = "render";
 
         public function __construct(Slim $slimInstance, $args=null)
         {
@@ -91,6 +93,8 @@
                     $slimRoute = $this->getSlimInstance()->map($route->getUri(), $route->getCallback());
                     foreach ($route->getMethods() as $method)
                         $slimRoute->via($method);
+
+					$this->getSlimInstance()->autorouteMap($route->getUri(), $route);
                 }
             }
 
@@ -134,12 +138,16 @@
 
             $httpMethods = $this->getRouteMethods($method);
             $authorizedUsers = $this->getAuthorizedUsers($method);
+            $template = $this->getTemplateAnnotation($method);
+            $render = $this->getRenderAnnotation($method);
 
             $route = new Route($descriptor);
             $route->setUri($uri);
             $route->setMethods($httpMethods);
             $route->setAuthorizedUsers($authorizedUsers);
-            $route->setCallback(array($class, $method->name));
+			$route->setTemplate($template);
+			$route->setRender($render);
+			$route->setCallback(array($class, $method->name));
 
             return $route;
         }
@@ -208,6 +216,26 @@
 
             return explode(",", $authorizeAnnotation->values[0]);
         }
-    }
+
+        private function getTemplateAnnotation(MethodElement $method)
+        {
+            $templateAnnotation = $method->getAnnotation(self::TEMPLATE);
+
+            if(empty($templateAnnotation) || count($templateAnnotation->values) < 1)
+				return null;
+
+			return $templateAnnotation->values[0];
+        }
+
+		private function getRenderAnnotation($method)
+		{
+            $renderAnnotation = $method->getAnnotation(self::RENDER);
+
+            if(empty($renderAnnotation) || count($renderAnnotation->values) < 1)
+				return "always";
+
+			return $renderAnnotation->values[0];
+		}
+	}
 
 ?>

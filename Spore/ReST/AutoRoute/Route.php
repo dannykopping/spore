@@ -2,6 +2,7 @@
 	namespace Spore\ReST\AutoRoute;
 
 	use Spore\ReST\AutoRoute\Util\RouteDescriptor;
+	use Exception;
 
 	/**
      *    A Value-Object that defines what a "route" is
@@ -18,7 +19,9 @@
         private $_arguments;
         private $_authorizedUsers;
         private $_methods;
-        private $_callback;
+		private $_template;
+		private $_render;
+		private $_callback;
 
         private $_descriptor;
 
@@ -133,6 +136,32 @@
         {
             return $this->_descriptor;
         }
-    }
+
+		public function setTemplate($template)
+		{
+			$this->_template = $template;
+		}
+
+		public function getTemplate()
+		{
+			return $this->_template;
+		}
+
+		public function setRender($render)
+		{
+			$normalizedValue = strtolower($render);
+			$acceptable = array("always", "nonxhr", "nonajax", "non-xhr", "non-ajax", "never");
+
+			if(!in_array($normalizedValue, $acceptable))
+				throw new Exception("$render is not a valid option for the @".AutoRouter::RENDER." annotation");
+
+			$this->_render = $normalizedValue;
+		}
+
+		public function getRender()
+		{
+			return $this->_render;
+		}
+	}
 
 ?>

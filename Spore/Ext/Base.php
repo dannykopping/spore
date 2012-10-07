@@ -2,6 +2,7 @@
 	namespace Spore\Ext;
 
 	use Slim\Slim;
+	use Spore\Spore;
 
 	/**
 	 *
@@ -21,7 +22,7 @@
 		}
 
 		/**
-		 * @return Slim
+		 * @return Spore
 		 */
 		protected function getSlimInstance()
 		{
