@@ -99,10 +99,12 @@
 		 * @url			/example8
 		 * @verbs		GET
 		 */
-		public function example8()
+		public function example8(Request $request, Response $response)
 		{
 			// prevent all subsequent serialization by using `echo` instead of returning data
-			// NOTE: doing this will not set the Content-Type header to the appropriate type
+			// you can define the Content-Type header yourself in order for the HTTP request
+			// to reflect the content being returned
+			$response->headers["Content-Type"] = "application/json";
 
 			echo json_encode(array("Hey!" => "See, I can do my own serialization!"));
 		}
