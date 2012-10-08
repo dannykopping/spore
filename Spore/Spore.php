@@ -15,14 +15,25 @@
 	class Spore extends Slim
 	{
 		/**
-		 * @var ReST\Controller
+		 * @var ReST\Controller			The Spore application controller singleton instance
 		 */
 		private $controller;
 
+		/**
+		 * @var array					An array of auto-routes
+		 */
 		private $autoroutes;
 
+		/**
+		 * @var	callable				The authorization failed callback function
+		 */
 		private $authFailedHandler;
 
+		/**
+		 * Constructor
+		 *
+		 * @param array $userSettings
+		 */
 		public function __construct($userSettings = array())
 		{
 			$this->autoroutes = array();
@@ -52,6 +63,10 @@
 			return array_merge($default, $extended);
 		}
 
+		/**
+		 *	Initialize the Spore application
+		 * 	and override a few Slim internals
+		 */
 		private function init()
 		{
 			$this->controller = Controller::getInstance();
@@ -61,12 +76,15 @@
 
 			$this->setErrorHandler(array($this, "errorHandler")); // add default error handler
 			$this->setNotFoundHandler(array($this, "notFoundHandler")); // add default not found handler
-			$this->setAuthFailedHandler(array($this, "authFailedHandler")); // add default authentication failed handler
+			$this->setAuthFailedHandler(array($this, "authFailedHandler")); // add default authorization failed handler
 			$this->controller->setAuthCallback(array($this, "defaultAuthCallback")); // add default auth callback
 
 			$this->updateAutoRoutes();
 		}
 
+		/**
+		 *	Update the controller's auto-route classes
+		 */
 		public function updateAutoRoutes()
 		{
 			$classes = $this->controller->getAllPHPServices(); // add auto-routing
@@ -120,36 +138,71 @@
 			spl_autoload_register(__NAMESPACE__ . "\\Spore::autoload");
 		}
 
+		/**
+		 * Set the authorization callback function
+		 *
+		 * @param $authorizationCallback
+		 */
 		public function setAuthCallback($authorizationCallback)
 		{
 			$this->controller->setAuthCallback($authorizationCallback);
 		}
 
+		/**
+		 * Set the error callback function
+		 *
+		 * @param $errorHandler
+		 */
 		public function setErrorHandler($errorHandler)
 		{
 			$this->error($errorHandler);
 		}
 
+		/**
+		 * Set the not found callback function
+		 *
+		 * @param $notFoundHandler
+		 */
 		public function setNotFoundHandler($notFoundHandler)
 		{
 			$this->notFound($notFoundHandler);
 		}
 
+		/**
+		 * Set the authorization failed callback function
+		 *
+		 * @param $authFailedHandler
+		 */
 		public function setAuthFailedHandler($authFailedHandler)
 		{
 			$this->authFailedHandler = $authFailedHandler;
 		}
 
+		/**
+		 * Get the authorization failed callback function
+		 *
+		 * @return mixed
+		 */
 		public function getAuthFailedHandler()
 		{
 			return $this->authFailedHandler;
 		}
 
+		/**
+		 * Get the default authorization callback function
+		 *
+		 * @return bool
+		 */
 		public function defaultAuthCallback()
 		{
 			return true;
 		}
 
+		/**
+		 * Get the default error callback function
+		 *
+		 * @param \Exception $e
+		 */
 		public function errorHandler(Exception $e)
 		{
 			$this->contentType($this->config("content-type"));
@@ -165,6 +218,9 @@
 			$this->halt(Status::INTERNAL_SERVER_ERROR, $data);
 		}
 
+		/**
+		 *	Get the not found callback function
+		 */
 		public function notFoundHandler()
 		{
 			$this->contentType($this->config("content-type"));
@@ -178,6 +234,9 @@
 			$this->halt(Status::NOT_FOUND, $data);
 		}
 
+		/**
+		 *	Get the default authorization failed callback function
+		 */
 		public function authFailedHandler()
 		{
 			$this->contentType($this->config("content-type"));
@@ -186,15 +245,5 @@
 														 ));
 
 			$this->halt(Status::UNAUTHORIZED, $data);
-		}
-
-		public function setAutoroutes($autoroutes)
-		{
-			$this->autoroutes = $autoroutes;
-		}
-
-		public function getAutoroutes()
-		{
-			return $this->autoroutes;
 		}
 	}

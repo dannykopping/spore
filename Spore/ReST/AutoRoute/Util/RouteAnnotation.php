@@ -1,33 +1,68 @@
 <?php
 	namespace Spore\ReST\AutoRoute\Util;
 
-    class RouteAnnotation
+    /**
+	 *	A class to manage an annotation in an auto-route
+	 */
+	class RouteAnnotation
     {
-        private $_name;
-        private $_value;
+		/**
+		 * @var	string			The annotation name
+		 */
+		private $_name;
+		/**
+		 * @var mixed			The annotation value
+		 */
+		private $_value;
 
-        public function __construct($name, $value)
+		/**
+		 * Constructor
+		 *
+		 * @param $name
+		 * @param $value
+		 */
+		public function __construct($name, $value)
         {
             $this->_name = $name;
             $this->_value = $value;
         }
 
-        public function setName($name)
+		/**
+		 * Name property setter
+		 *
+		 * @param $name
+		 */
+		public function setName($name)
         {
             $this->_name = $name;
         }
 
-        public function getName()
+		/**
+		 * Name property getter
+		 *
+		 * @return mixed
+		 */
+		public function getName()
         {
             return $this->_name;
         }
 
-        public function setValue($value)
+		/**
+		 * Value property setter
+		 *
+		 * @param $value
+		 */
+		public function setValue($value)
         {
             $this->_value = $value;
         }
 
-        public function getValue()
+		/**
+		 * Value property getter
+		 *
+		 * @return mixed
+		 */
+		public function getValue()
         {
             return $this->_value;
         }

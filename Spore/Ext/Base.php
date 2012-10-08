@@ -5,7 +5,7 @@
 	use Spore\Spore;
 
 	/**
-	 *
+	 *	A base class for all Slim "plugins"
 	 */
 	abstract class Base
 	{

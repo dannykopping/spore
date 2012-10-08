@@ -20,13 +20,19 @@
 	 */
 	class Controller
 	{
+		/**
+		 * @var    Controller                       Singleton instance
+		 */
 		private static $instance;
 
 		/**
-		 * @var Slim
+		 * @var 	Spore                         	Reference to Spore application
 		 */
 		private $_slimInstance;
 
+		/**
+		 * @var    callable                        	Authorization callback function
+		 */
 		private $_authorizationCallback;
 
 		/**
@@ -60,18 +66,27 @@
 			return self::$instance;
 		}
 
-		public function setApp(Slim $slimInstance)
+		/**
+		 * @param Spore $slimInstance
+		 */
+		public function setApp(\Spore\Spore $slimInstance)
 		{
 			$this->_slimInstance = $slimInstance;
 
 			$this->initialize();
 		}
 
+		/**
+		 * @return Spore
+		 */
 		public function getApp()
 		{
 			return $this->_slimInstance;
 		}
 
+		/**
+		 *    Add deserializer middleware
+		 */
 		private function addRequestBodyDeserializer()
 		{
 			$app = $this->getApp();
@@ -81,7 +96,7 @@
 		}
 
 		/**
-		 * Recursively scans the PHP_SERVICES directory, requiring each PHP class it finds, and returning an
+		 * Recursively scans the "services" config directory, requiring each PHP class it finds, and returning an
 		 * array of classes to be added to the auto-route list
 		 *
 		 * @return array
@@ -90,10 +105,10 @@
 		{
 			$app = $this->getApp();
 
-			$servicesDir 	= $app->config("services");
-			$servicesNS 	= $app->config("services-ns");
-			$files          = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($servicesDir), RecursiveIteratorIterator::LEAVES_ONLY);
-			$classes        = array();
+			$servicesDir = $app->config("services");
+			$servicesNS  = $app->config("services-ns");
+			$files       = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($servicesDir), RecursiveIteratorIterator::LEAVES_ONLY);
+			$classes     = array();
 
 			foreach($files as $file)
 			{
@@ -111,6 +126,7 @@
 				if($extension != "php")
 					continue;
 
+				// check namespaces
 				if(!empty($servicesNS))
 					$className = $servicesNS . "\\$className";
 
@@ -121,15 +137,27 @@
 			return $classes;
 		}
 
+		/**
+		 * Add auto-routing middleware
+		 *
+		 * @param array $classes
+		 */
 		public function addAutoRouting(array $classes)
 		{
-			$app = $this->getApp();
+			$app    = $this->getApp();
 			$router = new AutoRouter($app, $classes);
 		}
 
+		/**
+		 * Set the authorization callback function
+		 *
+		 * @param $authorizationCallback
+		 *
+		 * @throws \Exception
+		 */
 		public function setAuthCallback($authorizationCallback)
 		{
-			$app = $this->getApp();
+			$app    = $this->getApp();
 			$access = new AccessController($app);
 			$access->authorizationCallback($authorizationCallback);
 
@@ -146,6 +174,11 @@
 			AccessController::authorizationCallback($this->getAuthCallback());
 		}
 
+		/**
+		 * Get the authorization callback function
+		 *
+		 * @return mixed
+		 */
 		public function getAuthCallback()
 		{
 			return $this->_authorizationCallback;

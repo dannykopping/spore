@@ -8,13 +8,23 @@
 	use Spore\ReST\Model\Request;
 
 	/**
-	 *
+	 *    This class overrides Slim's default routing capabilities
 	 */
 	class Router extends \Slim\Router
 	{
+		/**
+		 * The related Spore application
+		 *
+		 * @var \Spore\Spore
+		 */
 		private $app;
 
-		public function __construct(Slim $app)
+		/**
+		 * Constructor
+		 *
+		 * @param \Spore\Spore $app
+		 */
+		public function __construct(Spore $app)
 		{
 			parent::__construct();
 
@@ -29,6 +39,13 @@
 			return $this->app;
 		}
 
+		/**
+		 * Override Slim's default `dispatch` function
+		 *
+		 * @param \Slim\Route $route
+		 *
+		 * @return bool
+		 */
 		public function dispatch(\Slim\Route $route)
 		{
 			$app      = $this->getApp();
@@ -82,13 +99,18 @@
 				$output = gzencode($output, 9, FORCE_GZIP);
 			}
 
+			// set the HTTP status
 			$app->status($resp->status);
+
+			// set the response body
 			$app->response()->body($output);
 
 			return true;
 		}
 
 		/**
+		 * Get a Request object containing relevant properties
+		 *
 		 * @param \Slim\Route $route
 		 * @param             $params
 		 *
@@ -105,24 +127,31 @@
 			$body    = $app->request()->getBody();
 			$request = $app->request();
 
+			// assign Slim URI params to Request::$params property
 			if(!empty($params))
 				$req->params = $params;
 
+			// assign deserialized HTTP request body to Request::$data property
 			if((in_array("PUT", $route->getHttpMethods()) || in_array("POST", $route->getHttpMethods())) && !empty($body))
 				$req->data = $body;
 
 			if(!empty($env["QUERY_STRING"]))
 			{
 				parse_str($env["QUERY_STRING"], $query);
+
+				// assign parsed URL query string to Request::$queryParams property
 				$req->queryParams = $query;
 			}
 
+			// set the Slim Request object
 			$req->setRequest($request);
 
 			return $req;
 		}
 
 		/**
+		 * Get a Response object containing relevant properties
+		 *
 		 * @return Request
 		 */
 		private function getResponseData()
@@ -138,6 +167,16 @@
 			return $resp;
 		}
 
+		/**
+		 * If a @template annotation has been defined, this function will return the output
+		 * of Slim's parsing of a template, if the correct @render annotation has been specified
+		 *
+		 * @param Route        $autoroute
+		 * @param \Spore\Spore $app
+		 * @param              $data
+		 *
+		 * @return string
+		 */
 		private function getTemplateOutput(Route $autoroute, Spore $app, $data)
 		{
 			$template   = $autoroute->getTemplate();

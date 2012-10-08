@@ -8,63 +8,97 @@
 	use Spore\ReST\Data\Serializer\JSONSerializer;
 	use Spore\ReST\Data\Serializer\XMLSerializer;
 
+	/**
+	 *    This class implements data serialization from PHP primitive objects into
+	 *    a predefined content-type
+	 */
 	class Serializer
-    {
-        private static $contentTypes;
+	{
+		/**
+		 * @var    array            A mapA map which defines which serializers work with which content-types
+		 */
+		private static $contentTypes;
 
-        public static function serialize($data, $contentType)
-        {
+		/**
+		 * Determine the appropriate serializer and pass the work
+		 * on to the `parse` function
+		 *
+		 * @param $data
+		 * @param $contentType
+		 *
+		 * @return array|mixed
+		 */
+		public static function serialize($data, $contentType)
+		{
 			$app = Spore::getInstance();
 
-            self::$contentTypes = array(
-                'application/json' => "\\Spore\\ReST\\Data\\Serializer\\JSONSerializer",
-                'application/xml'  => "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
-                'text/xml'         => "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
-            );
+			self::$contentTypes = array(
+				'application/json' => "\\Spore\\ReST\\Data\\Serializer\\JSONSerializer",
+				'application/xml'  => "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
+				'text/xml'         => "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
+			);
 
-            // add common content-types - set them to use the default content-type
-            $defaultContentType = $app->config("content-type");
-            $defaultSerializer = self::$contentTypes[$defaultContentType];
+			// add common content-types - set them to use the default content-type
+			$defaultContentType = $app->config("content-type");
+			$defaultSerializer  = self::$contentTypes[$defaultContentType];
 
-            if(isset($defaultSerializer))
-            {
-                if(!isset(self::$contentTypes["text/html"]))
-                    self::$contentTypes["text/html"] = $defaultSerializer;
+			if(isset($defaultSerializer))
+			{
+				if(!isset(self::$contentTypes["text/html"]))
+					self::$contentTypes["text/html"] = $defaultSerializer;
 
-                if(!isset(self::$contentTypes["text/plain"]))
-                    self::$contentTypes["text/plain"] = $defaultSerializer;
-            }
+				if(!isset(self::$contentTypes["text/plain"]))
+					self::$contentTypes["text/plain"] = $defaultSerializer;
+			}
 
-            return self::parse($data, $contentType);
-        }
+			return self::parse($data, $contentType);
+		}
 
-        private static function parse($data, $contentType)
-        {
+		/**
+		 * Serialize the data based on the provided content-type
+		 *
+		 * @param $data
+		 * @param $contentType
+		 *
+		 * @return array|mixed
+		 * @throws \Exception
+		 */
+		private static function parse($data, $contentType)
+		{
 			$app = Spore::getInstance();
 
-            if(!is_array($data) && empty($data))
-                return $data;
+			if(!is_array($data) && empty($data))
+				return $data;
 
-            $defaultContentType = $app->config("content-type");
-            $serializer = self::$contentTypes[$contentType];
-            if(!isset($serializer))
-                $serializer = self::$contentTypes[$defaultContentType];
+			$defaultContentType = $app->config("content-type");
+			$serializer         = self::$contentTypes[$contentType];
+			if(!isset($serializer))
+				$serializer = self::$contentTypes[$defaultContentType];
 
-            if(!$serializer)
-                throw new Exception("Cannot find serializer for default content type \"".$defaultContentType."\"");
+			if(!$serializer)
+				throw new Exception("Cannot find serializer for default content type \"" . $defaultContentType . "\"");
 
-            if(class_exists($serializer))
-            {
-                $result = call_user_func(array($serializer, "parse"), $data);
-                if(!empty($result))
-                    return $result;
-            }
-            else
-                throw new Exception("Cannot find serializer type \"".$serializer."\"");
+			if(class_exists($serializer))
+			{
+				$result = call_user_func(array($serializer, "parse"), $data);
+				if(!empty($result))
+					return $result;
+			}
+			else
+				throw new Exception("Cannot find serializer type \"" . $serializer . "\"");
 
-            return $data;
-        }
+			return $data;
+		}
 
+		/**
+		 * Serialize the data based on the provided "Accept" header if it exists,
+		 * otherwise revert to the predefined default content-type
+		 *
+		 * @param \Slim\Slim $app
+		 * @param            $data
+		 *
+		 * @return array|mixed
+		 */
 		public static function getSerializedData(Slim $app, $data)
 		{
 			$env                    = $app->environment();
@@ -90,4 +124,4 @@
 
 			return $data;
 		}
-    }
+	}

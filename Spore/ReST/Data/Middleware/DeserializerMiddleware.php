@@ -4,20 +4,25 @@
 	use Slim\Slim;
 	use Slim\Middleware;
 
-    class DeserializerMiddleware extends Middleware
+	/**
+	 *	This class is a base class which intercepts incoming requests and
+	 * 	deserializes the incoming HTTP body from a predefined format into a native PHP primitive
+	 */
+	class DeserializerMiddleware extends Middleware
     {
         /**
-         * @var Slim
+         * @var Slim			The related Slim application
          */
         protected $app;
 
         /**
-         * @var array
+         * @var array			A map which defines which deserializers work with which content-types
          */
         protected $contentTypes;
 
         /**
          * Constructor
+		 *
          * @param Slim $app
          * @param array $settings
          */
@@ -27,10 +32,7 @@
         }
 
 		/**
-		 * Call
-		 *
-		 * @internal param array $env
-		 * @return  array[status, header, body]
+		 * Run the middleware
 		 */
         public function call()
         {

@@ -4,9 +4,19 @@
     use Spore\ReST\Data\Middleware\DeserializerMiddleware;
 	use Exception;
 
+	/**
+	 *	This class extends the DeserializerMiddleware class
+	 * 	and implements data deserialization
+	 */
 	class Deserializer extends DeserializerMiddleware
     {
-        public function __construct($app, $settings = array())
+		/**
+		 * Constructor
+		 *
+		 * @param \Slim\Slim $app
+		 * @param array      $settings
+		 */
+		public function __construct($app, $settings = array())
         {
             parent::__construct($app, $settings);
 
