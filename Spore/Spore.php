@@ -28,12 +28,16 @@
 			$this->autoroutes = array();
 
 			parent::__construct($userSettings);
-
-			$this->settings = array_merge(self::getDefaultSettings(), $userSettings);
 			$this->init();
 		}
 
-		public static function getDefaultSettings()
+		/**
+		 * Combine the default Slim configuration with
+		 * the default Spore configuration
+		 *
+		 * @return array
+		 */
+		static function getDefaultSettings()
 		{
 			$default = parent::getDefaultSettings();
 
