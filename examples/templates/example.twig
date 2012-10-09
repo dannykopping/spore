@@ -10,6 +10,14 @@
 </head>
 
 <body style="font-family: Tahoma, serif;">
-    <p>In this example, we're be using <a href="{{ url }}">{{ name }}</a>, which is <em>{{ description }}</em></p>
+    <p>In this example, we'll be using <a href="{{ url }}">{{ name }}</a>, which is <em>{{ description }}</em>
+    <br/>
+
+    {% if ajax %}
+        <strong>This page was requested via AJAX</strong>
+    {% else %}
+        <strong>This page was not requested via AJAX</strong>
+    {% endif %}
+    </p>
 </body>
 </html>
