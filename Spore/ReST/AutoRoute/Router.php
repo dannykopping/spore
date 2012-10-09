@@ -190,6 +190,7 @@
 					$output = ob_get_clean();
 					break;
 				case "never":
+					return Serializer::getSerializedData($app, $data);
 					break;
 				default:
 					if(!$app->request()->isAjax())
@@ -197,6 +198,8 @@
 						$app->render($template, $data);
 						$output = ob_get_clean();
 					}
+					else
+						return Serializer::getSerializedData($app, $data);
 					break;
 			}
 
