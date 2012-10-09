@@ -56,7 +56,8 @@
 				"debug" => "true",
 				"content-type" => "application/json",
 				"gzip" => true,
-				"services" => realpath(__DIR__."/Services"),
+				"services" => realpath(dirname(__DIR__)."/examples/services"),
+				"templates.path" => realpath(dirname(__DIR__)."/examples/templates"),
 				"services-ns" => "Spore\\Services"
 			);
 

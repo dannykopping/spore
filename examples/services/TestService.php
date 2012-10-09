@@ -108,4 +108,35 @@
 
 			echo json_encode(array("Hey!" => "See, I can do my own serialization!"));
 		}
+
+		/**
+		 * @url            	/example9
+		 * @verbs        	GET
+		 * @template    	example.twig
+		 * @render        	always
+		 */
+		public function example9()
+		{
+			return array(
+				"name" 		  => "Twig",
+				"description" => "the flexible, fast, and secure template engine for PHP",
+				"url"         => "http://twig.sensiolabs.org/"
+			);
+		}
+
+		/**
+		 * @url            	/example10
+		 * @verbs        	GET
+		 * @template    	example.twig
+		 * @render        	nonAJAX
+		 */
+		public function example10(Request $request)
+		{
+			return array(
+				"name" 		  => "Twig",
+				"description" => "the flexible, fast, and secure template engine for PHP",
+				"url"         => "http://twig.sensiolabs.org/",
+				"ajax"		  => $request->request()->isAjax()
+			);
+		}
 	}
