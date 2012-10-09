@@ -53,7 +53,7 @@
 		const REQUEST_ENTITY_TOO_LARGE         = 413;
 		const REQUEST_URI_TOO_LONG             = 414;
 		const UNSUPPORTED_MEDIA_TYPE           = 415;
-		const REQUESTED_RANGE_NOT_SATISFIABLE_ = 416;
+		const REQUESTED_RANGE_NOT_SATISFIABLE  = 416;
 		const EXPECTATION_FAILED               = 417;
 		const UNPROCESSABLE_ENTITY             = 422;
 		const LOCKED                           = 423;

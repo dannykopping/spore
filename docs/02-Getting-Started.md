@@ -28,7 +28,7 @@ After you've done this, run `php composer.phar update` and *Composer* will downl
 #### How does Spore work? (FYI)
 **Spore** is an extension library built on top of [Slim Framework](http://slimframework.com/). What this means is that **Spore** requires Slim to operate, and this and all other dependencies are automatically downloaded for you by *Composer*.
 
-**Spore** works by leveraging the basic HTTP features and adding some extra functionality on top of it. **Spore** does not need any modifications to the canonical Slim library, but rather overrides a couple operations or properties at runtime.
+**Spore** works by leveraging the basic HTTP features and adding some extra functionality on top of Slim. **Spore** does not need any modifications to the canonical Slim library, but rather overrides a couple operations or properties at runtime.
 
 If you've used [Slim Framework](http://slimframework.com) before, you'll be able to do everything you've done before, except with **Spore** you'll simply use the `\Spore\Spore` class instead of the `\Slim\Slim` class.
 

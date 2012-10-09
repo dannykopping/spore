@@ -7,7 +7,7 @@
 	use Spore\Ext\Base;
 
 	/**
-	 *	This class controls the authentication mechanism
+	 *	This class controls the authorization mechanism
 	 */
 	class AccessController extends Base
     {
@@ -47,7 +47,7 @@
         }
 
 		/**
-		 * Determine whether the requested auto-route is accessible based on authentication role
+		 * Determine whether the requested auto-route is accessible based on authorization role
 		 *
 		 * @param $route
 		 */
@@ -76,13 +76,13 @@
                 {
                     $authorizedUsers = $route->getAuthorizedUsers();
 
-					// if no authentication annotation has been defined, don't bother with authentication
+					// if no authorization annotation has been defined, don't bother with authorization
                     if (empty($authorizedUsers))
                         return;
 
                     $authorized = call_user_func_array(self::getAuthorizationCallback(), array($authorizedUsers));
 
-					// if the defined role is not authorized, call the "authentication failed" handler
+					// if the defined role is not authorized, call the "authorization failed" handler
                     if (!$authorized)
                     {
 						$authFailedHandler = $this->getSlimInstance()->getAuthFailedHandler();
@@ -94,7 +94,7 @@
         }
 
 		/**
-		 * Set the "authentication failed" handler
+		 * Set the "authorization failed" handler
 		 *
 		 * @param $callable
 		 */
@@ -104,7 +104,7 @@
         }
 
 		/**
-		 * Get the "authentication failed" handler
+		 * Get the "authorization failed" handler
 		 *
 		 * @return mixed
 		 */

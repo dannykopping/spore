@@ -69,7 +69,7 @@ In **Spore**, **Slim**'s excellent `Router` class is overridden to provide a lit
 	</tr>
 	<tr>
 		<td>@auth</td>
-		<td>A comma-delimited list of <a href="#authentication">authentication</a> roles that may access the related callback</td>
+		<td>A comma-delimited list of <a href="#authorization">authorization</a> roles that may access the related callback</td>
 		<td>Anything you like</td>
 	</tr>
 </table>
@@ -209,14 +209,14 @@ public function serializationExample(Request $request, Response $response)
 
 It is not recommended that you do this though, since your code will become less portable. If you have a function that returns native PHP data, it will be possible to use that code internally (i.e. purely on the back-end without an API) using plain ol' PHP classes, whereas if you use `echo`, this will become a lot more difficult.
 
-Overriding the serialization mechanism will not affect any [authentication](03-Diving-Deeper.md#authentication) rules already in place.
+Overriding the serialization mechanism will not affect any [authorization](03-Diving-Deeper.md#authorization) rules already in place.
 
 ---
 
-### Authentication
-Authentication should always be a concern when developing an API. You may want to restrict access to certain administrative functions, or conditional restrictions based on session data.
+### Authorization
+Authorization should always be a concern when developing an API. You may want to restrict access to certain administrative functions, or conditional restrictions based on session data.
 
-**Spore** enables you to keep your API **auto-routes** safe by providing the `@auth` annotation and a special **Authentication Callback** mechanism.
+**Spore** enables you to keep your API **auto-routes** safe by providing the `@auth` annotation and a special **Authorization Callback** mechanism.
 
 Consider the following example:
 
@@ -232,7 +232,7 @@ public function somethingImportant(Request $request, Response $response)
 }
 ```
 
-Using the `@auth` annotation alone does not secure your **auto-route** - you will need to define an **Authentication Callback** to handle authentication requests.
+Using the `@auth` annotation alone does not secure your **auto-route** - you will need to define an **Authorization Callback** to handle authorization requests.
 
 ```php
 require_once "vendor/autoload.php";
@@ -253,7 +253,7 @@ $app->setAuthCallback(function ($roles) use ($app)
 $app->run();
 ```
 
-The `setAuthCallback` function is very simple. All it needs to do is return `true` or `false`. You can define whatever rules you like in order to validate or invalidate the request. A result of `true` means that **Spore** will continue with the request, while a `false` will fire an authentication error.
+The `setAuthCallback` function is very simple. All it needs to do is return `true` or `false`. You can define whatever rules you like in order to validate or invalidate the request. A result of `true` means that **Spore** will continue with the request, while a `false` will fire an authorization error.
 
 In the above example, look at the following line:
 
@@ -340,7 +340,7 @@ $app->setNotFoundHandler(function() use ($app)
 $app->run();
 ```
 
-True to form, **Spore** adds a little extra. **Spore** also allows you to define an **authentication error handler** to customize error messages when authentication exceptions occur.
+True to form, **Spore** adds a little extra. **Spore** also allows you to define an **authorization error handler** to customize error messages when authorization exceptions occur.
 
 The default `authFailedHandler` is rather simple:
 
