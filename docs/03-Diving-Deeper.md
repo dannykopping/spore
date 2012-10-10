@@ -331,7 +331,7 @@ use Spore\Spore;
 
 $app = new Spore();
 
-$app->setAuthCallback(function ($roles) use ($app)
+$app->authCallback(function ($roles) use ($app)
 {
 	if(empty($roles))
 		return true;
@@ -343,7 +343,7 @@ $app->setAuthCallback(function ($roles) use ($app)
 $app->run();
 ```
 
-The `setAuthCallback` function is very simple. All it needs to do is return `true` or `false`. You can define whatever rules you like in order to validate or invalidate the request. A result of `true` means that **Spore** will continue with the request, while a `false` will fire an authorization error.
+The `authCallback` function is very simple. All it needs to do is return `true` or `false`. You can define whatever rules you like in order to validate or invalidate the request. A result of `true` means that **Spore** will continue with the request, while a `false` will fire an authorization error.
 
 In the above example, look at the following line:
 
@@ -359,7 +359,7 @@ If you run the above example, the output will be:
 "Congrats, you're special!"
 ```
 
-… because in the `setAuthCallback` function, we defined our `$currentRole` to be `"Chuck Norris"` and checked to see if it was in the list of acceptable roles (passed into the callback as the `$roles` argument).
+… because in the `authCallback` function, we defined our `$currentRole` to be `"Chuck Norris"` and checked to see if it was in the list of acceptable roles (passed into the callback as the `$roles` argument).
 
 If we change the `$currentRole` to be `"Bob"` - you'll see the following output:
 
@@ -425,12 +425,12 @@ use Spore\Spore;
 use Spore\ReST\Model\Status;
 
 $app = new Spore();
-$app->setErrorHandler(function(Exception $e) use ($app)
+$app->error(function(Exception $e) use ($app)
 {
 	$app->halt(Status::INTERNAL_SERVER_ERROR, "Shit happened ({$e->getMessage()})");
 });
 
-$app->setNotFoundHandler(function() use ($app)
+$app->notFound(function() use ($app)
 {
 	$app->halt(Status::NOT_FOUND, "Shit not found.");
 });
@@ -464,12 +464,12 @@ use Spore\ReST\Model\Status;
 
 $app = new Spore();
 
-$app->setAuthCallback(function($roles) use ($app)
+$app->authCallback(function($roles) use ($app)
 {
 	return false;
 });
 
-$app->setAuthFailedHandler(function() use ($app)
+$app->authFailedHandler(function() use ($app)
 {
 	$app->halt(Status::FORBIDDEN, "Oi! Not so fast, big guy");
 });

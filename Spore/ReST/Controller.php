@@ -166,7 +166,7 @@
 				$this->_authorizationCallback = null;
 				AccessController::authorizationCallback(null);
 
-				throw new Exception("Function used for setAuthCallback is not callable.");
+				throw new Exception("Function used for authCallback is not callable.");
 			}
 
 			$this->_authorizationCallback = $authorizationCallback;
