@@ -85,7 +85,7 @@
 					// if the defined role is not authorized, call the "authorization failed" handler
                     if (!$authorized)
                     {
-						$authFailedHandler = $this->getSlimInstance()->getAuthFailedHandler();
+						$authFailedHandler = $this->getSlimInstance()->authFailed();
 						if(!empty($authFailedHandler))
 							call_user_func_array($authFailedHandler, array());
                     }

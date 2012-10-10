@@ -75,10 +75,10 @@
 
 			$this->controller->setApp($this);
 
-			$this->setErrorHandler(array($this, "errorHandler")); // add default error handler
-			$this->setNotFoundHandler(array($this, "notFoundHandler")); // add default not found handler
-			$this->setAuthFailedHandler(array($this, "authFailedHandler")); // add default authorization failed handler
-			$this->controller->setAuthCallback(array($this, "defaultAuthCallback")); // add default auth callback
+			$this->error(array($this, "errorHandler")); // add default error handler
+			$this->notFound(array($this, "notFoundHandler")); // add default not found handler
+			$this->authFailed(array($this, "authFailedHandler")); // add default authorization failed handler
+			$this->authCallback(array($this, "defaultAuthCallback")); // add default auth callback
 
 			$this->updateAutoRoutes();
 		}
@@ -143,50 +143,53 @@
 		 * Set the authorization callback function
 		 *
 		 * @param $authorizationCallback
-		 */
-		public function setAuthCallback($authorizationCallback)
-		{
-			$this->controller->setAuthCallback($authorizationCallback);
-		}
-
-		/**
-		 * Set the error callback function
-		 *
-		 * @param $errorHandler
-		 */
-		public function setErrorHandler($errorHandler)
-		{
-			$this->error($errorHandler);
-		}
-
-		/**
-		 * Set the not found callback function
-		 *
-		 * @param $notFoundHandler
-		 */
-		public function setNotFoundHandler($notFoundHandler)
-		{
-			$this->notFound($notFoundHandler);
-		}
-
-		/**
-		 * Set the authorization failed callback function
-		 *
-		 * @param $authFailedHandler
-		 */
-		public function setAuthFailedHandler($authFailedHandler)
-		{
-			$this->authFailedHandler = $authFailedHandler;
-		}
-
-		/**
-		 * Get the authorization failed callback function
 		 *
 		 * @return mixed
 		 */
-		public function getAuthFailedHandler()
+		public function authCallback($authorizationCallback = null)
 		{
-			return $this->authFailedHandler;
+			if(is_callable($authorizationCallback)) {
+				$this->controller->setAuthCallback($authorizationCallback);
+				return;
+			}
+
+			return $this->controller->getAuthCallback();
+		}
+
+		/**
+		 * Define or get the authorization failed handler
+		 *
+		 * @param null $argument
+		 */
+		public function authFailed($argument = null)
+		{
+			if (is_callable($argument)) {
+				//Register error handler
+				$this->authFailedHandler = $argument;
+			} else {
+				//Invoke error handler
+				$this->response->status(Status::UNAUTHORIZED);
+				$this->response->body('');
+				$this->response->write($this->callAuthFailedHandler($argument));
+				$this->stop();
+			}
+		}
+
+		/**
+		 * @param $argument
+		 *
+		 * @return string
+		 */
+		private function callAuthFailedHandler($argument)
+		{
+			ob_start();
+			if ( is_callable($this->authFailedHandler) ) {
+				call_user_func_array($this->authFailedHandler, array($argument));
+			} else {
+				call_user_func_array(array($this, 'authFailedHandler'), array($argument));
+			}
+
+			return ob_get_clean();
 		}
 
 		/**
