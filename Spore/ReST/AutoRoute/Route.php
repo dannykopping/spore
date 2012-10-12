@@ -2,137 +2,257 @@
 	namespace Spore\ReST\AutoRoute;
 
 	use Spore\ReST\AutoRoute\Util\RouteDescriptor;
+	use Exception;
 
 	/**
-     *    A Value-Object that defines what a "route" is
-     *
-     * @property string     uri
-     * @property array      arguments
-     * @property array      methods
-     * @property array      callback
-     * @property array      auth
-     */
-    class Route
-    {
-        private $_uri;
-        private $_arguments;
-        private $_authorizedUsers;
-        private $_methods;
-        private $_callback;
+	 *    A class that defines what an "auto-route" is
+	 */
+	class Route
+	{
+		/**
+		 * @var	string		The @name annotation value
+		 */
+		private $_name;
 
-        private $_descriptor;
+		/**
+		 * @var	string		The @name annotation value
+		 */
+		private $_uri;
 
-        public function __construct(RouteDescriptor $descriptor)
-        {
-            $this->_descriptor = $descriptor;
-        }
+		/**
+		 * @var	array		An array of arguments passed to the auto-route
+		 */
+		private $_arguments;
 
-        /**
-         * Setter super method to manipulate variables as they are assigned a value
-         *
-         * @param $name
-         * @param $value
-         */
-        public function __set($name, $value)
-        {
-            switch ($name)
-            {
-                case AutoRouter::VERBS:
-                case AutoRouter::AUTH:
-                    if (empty($value))
-                        break;
+		/**
+		 * @var	array		The @auth annotation value
+		 */
+		private $_authorizedUsers;
 
-                    foreach ($value as &$item)
-                    {
-                        // if the item in the array is a string, trim the extraneous whitespace from it
-                        if (is_string($item) && !empty($value))
-                            $item = trim($item);
-                    }
+		/**
+		 * @var	string		The @verbs annotation value
+		 */
+		private $_methods;
 
-                    $this->{"_" . $name} = $value;
+		/**
+		 * @var	string		The @template annotation value
+		 */
+		private $_template;
 
-                    break;
-                default:
-                    $this->{"_" . $name} = is_string($value) ? trim($value) : $value;
-                    break;
-            }
-        }
+		/**
+		 * @var	string		The @render annotation value
+		 */
+		private $_render;
 
-        /**
-         *    Getter super method to retrieve a variable
-         *
-         * @param $name
-         * @return mixed
-         */
-        public function __get($name)
-        {
-            return $this->{"_" . $name};
-        }
+		/**
+		 * @var	callable	The callback function related to this auto-route
+		 */
+		private $_callback;
 
-        public function __toString()
-        {
-            return $this->getUri() . "\n" .
-                print_r($this->getArguments(), true) . "\n" .
-                print_r($this->getMethods(), true) . "\n";
-        }
+		/**
+		 * @var Util\RouteDescriptor		The related RouteDescriptor
+		 */
+		private $_descriptor;
 
+		/**
+		 * Constructor
+		 *
+		 * @param Util\RouteDescriptor $descriptor
+		 */
+		public function __construct(RouteDescriptor $descriptor)
+		{
+			$this->_descriptor = $descriptor;
+		}
 
-        // GETTERS & SETTERS
+		/**
+		 * Converts this object to a string
+		 *
+		 * @return string
+		 */
+		public function __toString()
+		{
+			return $this->getUri() . "\n" .
+				print_r($this->getArguments(), true) . "\n" .
+				print_r($this->getMethods(), true) . "\n";
+		}
 
-        public function setArguments($arguments)
-        {
-            $this->_arguments = $arguments;
-        }
+		/**
+		 * Arguments property setter
+		 *
+		 * @param $arguments
+		 */
+		public function setArguments($arguments)
+		{
+			$this->_arguments = $arguments;
+		}
 
-        public function getArguments()
-        {
-            return $this->_arguments;
-        }
+		/**
+		 * Arguments property getter
+		 *
+		 * @return mixed
+		 */
+		public function getArguments()
+		{
+			return $this->_arguments;
+		}
 
-        public function setMethods($methods)
-        {
-            $this->_methods = $methods;
-        }
+		/**
+		 * Methods property setter
+		 *
+		 * @param $methods
+		 */
+		public function setMethods($methods)
+		{
+			$this->_methods = $methods;
+		}
 
-        public function getMethods()
-        {
-            return $this->_methods;
-        }
+		/**
+		 * Methods property getter
+		 *
+		 * @return mixed
+		 */
+		public function getMethods()
+		{
+			return $this->_methods;
+		}
 
-        public function setUri($uri)
-        {
-            $this->_uri = $uri;
-        }
+		/**
+		 * URI property setter
+		 *
+		 * @param $uri
+		 */
+		public function setUri($uri)
+		{
+			$this->_uri = $uri;
+		}
 
-        public function getUri()
-        {
-            return $this->_uri;
-        }
+		/**
+		 * URI property getter
+		 *
+		 * @return mixed
+		 */
+		public function getUri()
+		{
+			return $this->_uri;
+		}
 
-        public function setCallback($callback)
-        {
-            $this->_callback = $callback;
-        }
+		/**
+		 * Callback property setter
+		 *
+		 * @param $callback
+		 */
+		public function setCallback($callback)
+		{
+			$this->_callback = $callback;
+		}
 
-        public function getCallback()
-        {
-            return $this->_callback;
-        }
+		/**
+		 * Callback property getter
+		 *
+		 * @return mixed
+		 */
+		public function getCallback()
+		{
+			return $this->_callback;
+		}
 
-        public function setAuthorizedUsers($authorizedUsers)
-        {
-            $this->_authorizedUsers = $authorizedUsers;
-        }
+		/**
+		 * Authorized users property setter
+		 *
+		 * @param $authorizedUsers
+		 */
+		public function setAuthorizedUsers($authorizedUsers)
+		{
+			$this->_authorizedUsers = $authorizedUsers;
+		}
 
-        public function getAuthorizedUsers()
-        {
-            return $this->_authorizedUsers;
-        }
+		/**
+		 * Authorized users property getter
+		 *
+		 * @return mixed
+		 */
+		public function getAuthorizedUsers()
+		{
+			return $this->_authorizedUsers;
+		}
 
-        public function getDescriptor()
-        {
-            return $this->_descriptor;
-        }
-    }
+		/**
+		 * RouteDescriptor property getter
+		 *
+		 * @return Util\RouteDescriptor
+		 */
+		public function getDescriptor()
+		{
+			return $this->_descriptor;
+		}
 
-?>
+		/**
+		 * Template property setter
+		 *
+		 * @param $template
+		 */
+		public function setTemplate($template)
+		{
+			$this->_template = $template;
+		}
+
+		/**
+		 * Template property getter
+		 *
+		 * @return mixed
+		 */
+		public function getTemplate()
+		{
+			return $this->_template;
+		}
+
+		/**
+		 * Render mode property setter
+		 *
+		 * @param $render
+		 *
+		 * @throws \Exception
+		 */
+		public function setRender($render)
+		{
+			$normalizedValue = strtolower($render);
+			$acceptable      = array("always", "nonxhr", "nonajax", "non-xhr", "non-ajax", "never");
+
+			if(!in_array($normalizedValue, $acceptable))
+				throw new Exception("$render is not a valid option for the @" . AutoRouter::RENDER . " annotation");
+
+			$this->_render = $normalizedValue;
+		}
+
+		/**
+		 * Render mode property getter
+		 *
+		 * @return mixed
+		 */
+		public function getRender()
+		{
+			return $this->_render;
+		}
+
+		/**
+		 * Name property setter
+		 *
+		 * @param $name
+		 */
+		public function setName($name)
+		{
+			$this->_name = trim($name);
+		}
+
+		/**
+		 * Name property getter
+		 *
+		 * @return mixed
+		 */
+		public function getName()
+		{
+			return $this->_name;
+		}
+	}
+
+	?>

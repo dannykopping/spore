@@ -2,9 +2,10 @@
 	namespace Spore\Ext;
 
 	use Slim\Slim;
+	use Spore\Spore;
 
 	/**
-	 *
+	 *	A base class for all Slim "plugins"
 	 */
 	abstract class Base
 	{
@@ -21,7 +22,7 @@
 		}
 
 		/**
-		 * @return Slim
+		 * @return Spore
 		 */
 		protected function getSlimInstance()
 		{

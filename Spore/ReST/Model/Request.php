@@ -1,30 +1,34 @@
 <?php
 	namespace Spore\ReST\Model;
 
+	/**
+	 *	This class is a convenience class which provides access to
+	 * 	data passed in via the various accepted HTTP practices
+	 */
 	class Request
 	{
 		/**
-		 * @var stdClass|array		Stores the deserialized request body
+		 * @var stdClass|array		The deserialized request body
 		 */
 		public $data = null;
 
 		/**
-		 * @var array				(REST only) HTTP GET parameters
+		 * @var array				The parsed HTTP query string parameters
 		 */
 		public $queryParams = array();
 
 		/**
-		 * @var array				(REST only) Route parameters
+		 * @var array				The Slim URI parameters
 		 */
 		public $params = array();
 
 		/**
-		 * @var \Slim\Http\Request
+		 * @var \Slim\Http\Request	A reference to the Slim Request
 		 */
 		private $request;
 
 		/**
-		 * Slim Response object
+		 * Get the Slim Request object
 		 *
 		 * @return \Slim\Http\Request
 		 */
@@ -33,6 +37,11 @@
 			return $this->request;
 		}
 
+		/**
+		 * Set the Slim Request object
+		 *
+		 * @param $request
+		 */
 		public function setRequest($request)
 		{
 			$this->request = $request;

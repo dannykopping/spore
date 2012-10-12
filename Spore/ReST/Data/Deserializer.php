@@ -3,11 +3,20 @@
 
     use Spore\ReST\Data\Middleware\DeserializerMiddleware;
 	use Exception;
-	use Spore\Config\Configuration;
 
+	/**
+	 *	This class extends the DeserializerMiddleware class
+	 * 	and implements data deserialization
+	 */
 	class Deserializer extends DeserializerMiddleware
     {
-        public function __construct($app, $settings = array())
+		/**
+		 * Constructor
+		 *
+		 * @param \Slim\Slim $app
+		 * @param array      $settings
+		 */
+		public function __construct($app, $settings = array())
         {
             parent::__construct($app, $settings);
 
@@ -37,7 +46,7 @@
             if(empty($data))
                 return $data;
 
-            $defaultContentType = Configuration::get("content-type");
+            $defaultContentType = $this->getApplication()->config("content-type");
             $deserializer = $this->contentTypes[$contentType];
             if(!isset($deserializer))
                 $deserializer = $this->contentTypes[$defaultContentType];

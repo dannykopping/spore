@@ -1,7 +1,15 @@
 <?php
 	namespace Spore\ReST\Data\Serializer;
 
-    abstract class Base
+    /**
+	 *	The Base serialization class
+	 */
+	abstract class Base
     {
-        public static function parse($data){}
+		/**
+		 * Parse the given data into an encoding
+		 *
+		 * @param $data
+		 */
+		public static function parse($data){}
     }

@@ -99,11 +99,44 @@
 		 * @url			/example8
 		 * @verbs		GET
 		 */
-		public function example8()
+		public function example8(Request $request, Response $response)
 		{
 			// prevent all subsequent serialization by using `echo` instead of returning data
-			// NOTE: doing this will not set the Content-Type header to the appropriate type
+			// you can define the Content-Type header yourself in order for the HTTP request
+			// to reflect the content being returned
+			$response->headers["Content-Type"] = "application/json";
 
 			echo json_encode(array("Hey!" => "See, I can do my own serialization!"));
+		}
+
+		/**
+		 * @url            	/example9
+		 * @verbs        	GET
+		 * @template    	example.twig
+		 * @render        	always
+		 */
+		public function example9()
+		{
+			return array(
+				"name" 		  => "Twig",
+				"description" => "the flexible, fast, and secure template engine for PHP",
+				"url"         => "http://twig.sensiolabs.org/"
+			);
+		}
+
+		/**
+		 * @url            	/example10
+		 * @verbs        	GET
+		 * @template    	example.twig
+		 * @render        	nonAJAX
+		 */
+		public function example10(Request $request)
+		{
+			return array(
+				"name" 		  => "Twig",
+				"description" => "the flexible, fast, and secure template engine for PHP",
+				"url"         => "http://twig.sensiolabs.org/",
+				"ajax"		  => $request->request()->isAjax()
+			);
 		}
 	}

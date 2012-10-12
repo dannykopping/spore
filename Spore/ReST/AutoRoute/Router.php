@@ -2,70 +2,115 @@
 	namespace Spore\ReST\AutoRoute;
 
 	use Slim\Slim;
+	use Spore\Spore;
 	use Spore\ReST\Model\Response;
 	use Spore\ReST\Data\Serializer;
-	use Spore\Config\Configuration;
 	use Spore\ReST\Model\Request;
 
 	/**
-	 *
+	 *    This class overrides Slim's default routing capabilities
 	 */
 	class Router extends \Slim\Router
 	{
+		/**
+		 * The related Spore application
+		 *
+		 * @var \Spore\Spore
+		 */
 		private $app;
 
-		public function __construct(Slim $app)
+		/**
+		 * Constructor
+		 *
+		 * @param \Spore\Spore $app
+		 */
+		public function __construct(Spore $app)
 		{
 			parent::__construct();
 
 			$this->app = $app;
 		}
 
+		/**
+		 * @return \Spore\Spore
+		 */
 		public function getApp()
 		{
 			return $this->app;
 		}
 
+		/**
+		 * Override Slim's default `dispatch` function
+		 *
+		 * @param \Slim\Route $route
+		 *
+		 * @return bool
+		 */
 		public function dispatch(\Slim\Route $route)
 		{
 			$app      = $this->getApp();
 			$params   = $route->getParams();
 			$callable = $route->getCallable();
 
+			// check for a matching autoroute based on the request URI
+			$autoroute = null;
+			foreach($app->routes as $r)
+			{
+				$matches = $route->matches($r->getUri());
+				if($matches)
+					$autoroute = $r;
+			}
+
+			// build Request and Response objects to be passed to callable
 			$req  = $this->getRequestData($route, $params);
 			$resp = $this->getResponseData();
 
 			if(!is_callable($callable))
 				return false;
 
-			$result = call_user_func_array($callable, array($req, &$resp));
+			// call the autoroute's callback function and pass in the Request and Response objects
+			$result      = call_user_func_array($callable, array($req, &$resp));
+			$outputEmpty = ob_get_length() <= 0;
+			$output      = "";
 
-			// if there is no response data, return a blank response
-			if($result === null && $result !== false)
-				return true;
+			// if the output buffer is empty, we can return our own response
+			if($outputEmpty)
+			{
+				// if there is no response data, return a blank response
+				if($result === null && $result !== false)
+					return true;
 
-			$req = Serializer::getSerializedData($app, $result);
+				if($autoroute && $autoroute->getTemplate()) $output = $this->getTemplateOutput($autoroute, $app, $result);
+				else                                        $output = Serializer::getSerializedData($app, $result);
 
-			if(empty($req))
-				return true;
+				if(empty($output))
+					return true;
+			}
+			else
+				$output = ob_get_clean();
 
-			// return gzip-encoded data
-			$gzipEnabled = Configuration::get("gzip");
-			if(substr_count($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") && extension_loaded("zlib") && $gzipEnabled)
+			// return gzip-encoded data if gzip is enabled
+			$gzipEnabled = $app->config("gzip");
+			$env         = $app->environment();
+			if(substr_count($env["ACCEPT_ENCODING"], "gzip") && extension_loaded("zlib") && $gzipEnabled)
 			{
 				$app->response()->header("Content-Encoding", "gzip");
 				$app->response()->header("Vary", "Accept-Encoding");
-				$req = gzencode($req, 9, FORCE_GZIP);
+				$output = gzencode($output, 9, FORCE_GZIP);
 			}
 
-			echo $req;
-
+			// set the HTTP status
 			$app->status($resp->status);
+
+			// set the response body
+			$app->response()->body($output);
 
 			return true;
 		}
 
 		/**
+		 * Get a Request object containing relevant properties
+		 *
 		 * @param \Slim\Route $route
 		 * @param             $params
 		 *
@@ -82,24 +127,31 @@
 			$body    = $app->request()->getBody();
 			$request = $app->request();
 
+			// assign Slim URI params to Request::$params property
 			if(!empty($params))
 				$req->params = $params;
 
+			// assign deserialized HTTP request body to Request::$data property
 			if((in_array("PUT", $route->getHttpMethods()) || in_array("POST", $route->getHttpMethods())) && !empty($body))
 				$req->data = $body;
 
 			if(!empty($env["QUERY_STRING"]))
 			{
 				parse_str($env["QUERY_STRING"], $query);
+
+				// assign parsed URL query string to Request::$queryParams property
 				$req->queryParams = $query;
 			}
 
+			// set the Slim Request object
 			$req->setRequest($request);
 
 			return $req;
 		}
 
 		/**
+		 * Get a Response object containing relevant properties
+		 *
 		 * @return Request
 		 */
 		private function getResponseData()
@@ -113,5 +165,44 @@
 			$resp->headers = $response->headers();
 
 			return $resp;
+		}
+
+		/**
+		 * If a @template annotation has been defined, this function will return the output
+		 * of Slim's parsing of a template, if the correct @render annotation has been specified
+		 *
+		 * @param Route        $autoroute
+		 * @param \Spore\Spore $app
+		 * @param              $data
+		 *
+		 * @return string
+		 */
+		private function getTemplateOutput(Route $autoroute, Spore $app, $data)
+		{
+			$template   = $autoroute->getTemplate();
+			$renderMode = $autoroute->getRender();
+
+			$output = "";
+			switch($renderMode)
+			{
+				case "always":
+					$app->render($template, $data);
+					$output = ob_get_clean();
+					break;
+				case "never":
+					return Serializer::getSerializedData($app, $data);
+					break;
+				default:
+					if(!$app->request()->isAjax())
+					{
+						$app->render($template, $data);
+						$output = ob_get_clean();
+					}
+					else
+						return Serializer::getSerializedData($app, $data);
+					break;
+			}
+
+			return $output;
 		}
 	}

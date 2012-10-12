@@ -6,26 +6,52 @@
 	use Spore\ReST\AutoRoute\Route;
 	use Spore\Ext\Base;
 
+	/**
+	 *	This class controls the authorization mechanism
+	 */
 	class AccessController extends Base
     {
-        private $routes;
+		/**
+		 * @var	array 		An array of auto-routes
+		 */
+		private $routes;
 
-        protected static $authorizationCallback;
+		/**
+		 * @var	callable	The callback to execute when an authorization request is initiated
+		 */
+		protected static $authorizationCallback;
 
-        public function __construct(Spore $slimInstance, $args = null)
+		/**
+		 * Constructor
+		 *
+		 * @param \Spore\Spore $slimInstance
+		 * @param null         $args
+		 */
+		public function __construct(Spore $slimInstance, $args = null)
         {
             parent::__construct($slimInstance, $args);
 
-            $this->slimInstance->hook("slim.plugin.autoroute.ready", array($this, "routesReadyHandler"));
-            $this->slimInstance->hook("slim.before.dispatch", array($this, "checkAuthorizationForRoute"));
+			// apply Slim hooks
+            $this->getSlimInstance()->hook("slim.plugin.autoroute.ready", array($this, "routesReadyHandler"));
+            $this->getSlimInstance()->hook("slim.before.dispatch", array($this, "checkAuthorizationForRoute"));
         }
 
-        public function routesReadyHandler($routes)
+		/**
+		 * Once the auto-routes are ready, keep track of them in this class
+		 *
+		 * @param $routes
+		 */
+		public function routesReadyHandler($routes)
         {
             $this->routes = $routes;
         }
 
-        public function checkAuthorizationForRoute($route)
+		/**
+		 * Determine whether the requested auto-route is accessible based on authorization role
+		 *
+		 * @param $route
+		 */
+		public function checkAuthorizationForRoute($route)
         {
 			$route = $this->getSlimInstance()->router()->current();
 
@@ -39,6 +65,7 @@
             if (!$this->routes)
                 return;
 
+			// find the relevant auto-route
             foreach ($this->routes as $route)
             {
                 if (empty($route))
@@ -48,14 +75,17 @@
                 if ($route->getCallback() === $callable)
                 {
                     $authorizedUsers = $route->getAuthorizedUsers();
+
+					// if no authorization annotation has been defined, don't bother with authorization
                     if (empty($authorizedUsers))
                         return;
 
                     $authorized = call_user_func_array(self::getAuthorizationCallback(), array($authorizedUsers));
 
+					// if the defined role is not authorized, call the "authorization failed" handler
                     if (!$authorized)
                     {
-						$authFailedHandler = $this->slimInstance->getAuthFailedHandler();
+						$authFailedHandler = $this->getSlimInstance()->authFailed();
 						if(!empty($authFailedHandler))
 							call_user_func_array($authFailedHandler, array());
                     }
@@ -63,12 +93,22 @@
             }
         }
 
-        public static function authorizationCallback($callable)
+		/**
+		 * Set the "authorization failed" handler
+		 *
+		 * @param $callable
+		 */
+		public static function authorizationCallback($callable)
         {
             self::$authorizationCallback = $callable;
         }
 
-        public static function getAuthorizationCallback()
+		/**
+		 * Get the "authorization failed" handler
+		 *
+		 * @return mixed
+		 */
+		public static function getAuthorizationCallback()
         {
             return self::$authorizationCallback;
         }

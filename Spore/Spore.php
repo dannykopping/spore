@@ -2,11 +2,11 @@
 	namespace Spore;
 
 	use Slim\Slim;
+	use Spore\ReST\AutoRoute\Route;
 	use Spore\ReST\Model\Status;
 	use Spore\ReST\Data\Serializer;
 	use Exception;
 	use Spore\ReST\Controller;
-	use Spore\Config\Configuration;
 	use Spore\ReST\AutoRoute\Router;
 
 	/**
@@ -15,23 +15,59 @@
 	class Spore extends Slim
 	{
 		/**
-		 * @var ReST\Controller
+		 * @var ReST\Controller			The Spore application controller singleton instance
 		 */
 		private $controller;
 
+		/**
+		 * @var array					An array of auto-routes
+		 */
+		private $autoroutes;
+
+		/**
+		 * @var	callable				The authorization failed callback function
+		 */
 		private $authFailedHandler;
 
+		/**
+		 * Constructor
+		 *
+		 * @param array $userSettings
+		 */
 		public function __construct($userSettings = array())
 		{
-			parent::__construct($userSettings);
-			if(!in_array("debug", $userSettings))
-			{
-				$this->config("debug", Configuration::get("debug"));
-			}
+			$this->autoroutes = array();
 
+			parent::__construct($userSettings);
 			$this->init();
 		}
 
+		/**
+		 * Combine the default Slim configuration with
+		 * the default Spore configuration
+		 *
+		 * @return array
+		 */
+		static function getDefaultSettings()
+		{
+			$default = parent::getDefaultSettings();
+
+			$extended = array(
+				"debug" => "true",
+				"content-type" => "application/json",
+				"gzip" => true,
+				"services" => realpath(dirname(__DIR__)."/examples/services"),
+				"templates.path" => realpath(dirname(__DIR__)."/examples/templates"),
+				"services-ns" => "Spore\\Services"
+			);
+
+			return array_merge($default, $extended);
+		}
+
+		/**
+		 *	Initialize the Spore application
+		 * 	and override a few Slim internals
+		 */
 		private function init()
 		{
 			$this->controller = Controller::getInstance();
@@ -39,14 +75,17 @@
 
 			$this->controller->setApp($this);
 
-			$this->setErrorHandler(array($this, "errorHandler")); // add default error handler
-			$this->setNotFoundHandler(array($this, "notFoundHandler")); // add default not found handler
-			$this->setAuthFailedHandler(array($this, "authFailedHandler")); // add default authentication failed handler
-			$this->controller->setAuthCallback(array($this, "defaultAuthCallback")); // add default auth callback
+			$this->error(array($this, "errorHandler")); // add default error handler
+			$this->notFound(array($this, "notFoundHandler")); // add default not found handler
+			$this->authFailed(array($this, "authFailedHandler")); // add default authorization failed handler
+			$this->authCallback(array($this, "defaultAuthCallback")); // add default auth callback
 
 			$this->updateAutoRoutes();
 		}
 
+		/**
+		 *	Update the controller's auto-route classes
+		 */
 		public function updateAutoRoutes()
 		{
 			$classes = $this->controller->getAllPHPServices(); // add auto-routing
@@ -100,39 +139,77 @@
 			spl_autoload_register(__NAMESPACE__ . "\\Spore::autoload");
 		}
 
-		public function setAuthCallback($authorizationCallback)
+		/**
+		 * Set the authorization callback function
+		 *
+		 * @param $authorizationCallback
+		 *
+		 * @return mixed
+		 */
+		public function authCallback($authorizationCallback = null)
 		{
-			$this->controller->setAuthCallback($authorizationCallback);
+			if(is_callable($authorizationCallback)) {
+				$this->controller->setAuthCallback($authorizationCallback);
+				return;
+			}
+
+			return $this->controller->getAuthCallback();
 		}
 
-		public function setErrorHandler($errorHandler)
+		/**
+		 * Define or get the authorization failed handler
+		 *
+		 * @param null $argument
+		 */
+		public function authFailed($argument = null)
 		{
-			$this->error($errorHandler);
+			if (is_callable($argument)) {
+				//Register error handler
+				$this->authFailedHandler = $argument;
+			} else {
+				//Invoke error handler
+				$this->response->status(Status::UNAUTHORIZED);
+				$this->response->body('');
+				$this->response->write($this->callAuthFailedHandler($argument));
+				$this->stop();
+			}
 		}
 
-		public function setNotFoundHandler($notFoundHandler)
+		/**
+		 * @param $argument
+		 *
+		 * @return string
+		 */
+		private function callAuthFailedHandler($argument)
 		{
-			$this->notFound($notFoundHandler);
+			ob_start();
+			if ( is_callable($this->authFailedHandler) ) {
+				call_user_func_array($this->authFailedHandler, array($argument));
+			} else {
+				call_user_func_array(array($this, 'authFailedHandler'), array($argument));
+			}
+
+			return ob_get_clean();
 		}
 
-		public function setAuthFailedHandler($authFailedHandler)
-		{
-			$this->authFailedHandler = $authFailedHandler;
-		}
-
-		public function getAuthFailedHandler()
-		{
-			return $this->authFailedHandler;
-		}
-
+		/**
+		 * Get the default authorization callback function
+		 *
+		 * @return bool
+		 */
 		public function defaultAuthCallback()
 		{
 			return true;
 		}
 
+		/**
+		 * Get the default error callback function
+		 *
+		 * @param \Exception $e
+		 */
 		public function errorHandler(Exception $e)
 		{
-			$this->contentType(Configuration::get("content-type"));
+			$this->contentType($this->config("content-type"));
 			$data = Serializer::getSerializedData($this, array(
 															  "error" => array(
 																  "message" => $e->getMessage(),
@@ -145,9 +222,12 @@
 			$this->halt(Status::INTERNAL_SERVER_ERROR, $data);
 		}
 
+		/**
+		 *	Get the not found callback function
+		 */
 		public function notFoundHandler()
 		{
-			$this->contentType(Configuration::get("content-type"));
+			$this->contentType($this->config("content-type"));
 			$data = Serializer::getSerializedData($this, array(
 															  "error" => array(
 																  "message" => "'" . $this->request()->getResourceUri() . "' could not be resolved to a valid API call",
@@ -158,9 +238,12 @@
 			$this->halt(Status::NOT_FOUND, $data);
 		}
 
+		/**
+		 *	Get the default authorization failed callback function
+		 */
 		public function authFailedHandler()
 		{
-			$this->contentType(Configuration::get("content-type"));
+			$this->contentType($this->config("content-type"));
 			$data = Serializer::getSerializedData($this, array(
 															  "message" => "You are not authorized to execute this function"
 														 ));

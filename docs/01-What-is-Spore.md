@@ -11,10 +11,11 @@ Spore is a set of useful extensions to the [Slim Framework](http://www.slimframe
 
 * **Composer** integration
 * **Annotation-based** request routing
+* **First class** templating support
 * Automatic **deserialization and serialization** of data
-* Simple, but effective **authentication** mechanism
+* Simple, but effective **authorization** mechanism
 * **Minimal restrictions**
-* Highly **configurable**
+* Easily **configurable**
 * **Simple** to use
 
 ---
@@ -27,11 +28,12 @@ Spore is a set of useful extensions to the [Slim Framework](http://www.slimframe
   * **2.3** [Using the examples](02-Getting-Started.md#using-the-examples)
 * **3** [Diving Deeper](03-Diving-Deeper.md)
   * **3.1** [Routing and Annotations](03-Diving-Deeper.md#routing-and-annotations)
-  * **3.2** [Serialization](03-Diving-Deeper.md#serialization)
-  * **3.3** [Authentication](03-Diving-Deeper.md#authentication)
-  * **3.4** [Handlers](03-Diving-Deeper.md#handlers)
-  * **3.5** [`Request` & `Response`](03-Diving-Deeper.md#request-and-response)
-  * **3.6** [Configuration](03-Diving-Deeper.md#configuration)
+  * **3.2** [Configuration](03-Diving-Deeper.md#configuration)
+  * **3.3** [Serialization](03-Diving-Deeper.md#serialization)
+  * **3.4** [Authorization](03-Diving-Deeper.md#authorization)
+  * **3.5** [Handlers](03-Diving-Deeper.md#handlers)
+  * **3.6** [`Request` & `Response`](03-Diving-Deeper.md#request-and-response)
+  * **3.7** [Templating](03-Diving-Deeper.md#templating)
 * **4** [Contributing](04-Contributing.md)
 * **5** [Useful links](05-Useful-Links.md)
 * **6** [Tools](06-Tools.md)

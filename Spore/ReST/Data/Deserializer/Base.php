@@ -1,7 +1,15 @@
 <?php
 	namespace Spore\ReST\Data\Deserializer;
 
-    abstract class Base
+    /**
+	 *	The Base deserialization class
+	 */
+	abstract class Base
     {
-        public static function parse($data){}
+		/**
+		 * Parse the given data from an encoding
+		 *
+		 * @param $data
+		 */
+		public static function parse($data){}
     }

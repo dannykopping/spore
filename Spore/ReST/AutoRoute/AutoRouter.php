@@ -1,7 +1,7 @@
 <?php
 	namespace Spore\ReST\AutoRoute;
 
-    use Spore\Ext\Base;
+	use Spore\Ext\Base;
 	use Exception;
 	use DocBlock\Element\MethodElement;
 	use Spore\ReST\AutoRoute\Util\RouteAnnotation;
@@ -11,203 +11,342 @@
 	use RuntimeException;
 	use Slim\Slim;
 
+	/**
+	 *
+	 */
 	class AutoRouter extends Base
-    {
-        private $classes;
+	{
+		/**
+		 * @var array				An array of classes to be analyzed for auto-routes
+		 */
+		private $classes;
 
-        private $routes;
+		/**
+		 *	The @name attribute
+		 */
+		const NAME = "name";
 
-        const ROUTE = "url";
-        const VERBS = "verbs";
-        const AUTH = "auth";
+		/**
+		 *	The @url attribute
+		 */
+		const ROUTE = "url";
 
-        public function __construct(Slim $slimInstance, $args=null)
-        {
-            parent::__construct($slimInstance, $args);
+		/**
+		 *	The @verbs attribute
+		 */
+		const VERBS = "verbs";
 
-            $this->classes = $args;
-            $this->analyzeClassesForAutoRoutes($this->classes);
-        }
+		/**
+		 *	The @auth attribute
+		 */
+		const AUTH = "auth";
 
-        private function analyzeClassesForAutoRoutes($classes)
-        {
-            if (empty($classes))
-                return;
+		/**
+		 *	The @template attribute
+		 */
+		const TEMPLATE = "template";
 
-            if (!is_array($classes))
-                $classes = array($classes);
+		/**
+		 *	The @render attribute
+		 */
+		const RENDER = "render";
 
-            $allRoutes = array();
+		/**
+		 * Constructor
+		 *
+		 * @param \Slim\Slim $slimInstance
+		 * @param null       $args
+		 */
+		public function __construct(Slim $slimInstance, $args = null)
+		{
+			parent::__construct($slimInstance, $args);
 
-            foreach ($classes as $class)
-            {
-                $dbp = new Parser();
-                $dbp->setAllowInherited(false);
-                $dbp->setMethodFilter(ReflectionMethod::IS_PUBLIC);
-                $dbp->analyze($class);
+			$this->classes = $args;
+			$this->analyzeClassesForAutoRoutes($this->classes);
+		}
 
-                $methods = $dbp->getMethods();
+		/**
+		 * Analyze the array of provided classes for auto-route annotations
+		 *
+		 * @param $classes
+		 *
+		 * @throws \Exception
+		 */
+		private function analyzeClassesForAutoRoutes($classes)
+		{
+			if(empty($classes))
+				return;
 
-                if (empty($methods))
-                    continue;
+			if(!is_array($classes))
+				$classes = array($classes);
 
-                $routes = array();
-                $descriptors = array();
+			$allRoutes = array();
 
-                foreach ($methods as $method)
-                {
-                    $annotations = $this->buildAnnotationDescriptors($method->getAnnotations());
+			foreach($classes as $class)
+			{
+				// create the DocBlock parser
+				$dbp = new Parser();
+				$dbp->setAllowInherited(false);
+				$dbp->setMethodFilter(ReflectionMethod::IS_PUBLIC);		// only inspect public methods
+				$dbp->analyze($class);
 
-                    // if there is no @url annotation, ignore this method
-                    if(!$method->hasAnnotation(self::ROUTE))
-                        continue;
+				$methods = $dbp->getMethods();
 
-                    $descriptor = new RouteDescriptor($annotations, $method);
+				if(empty($methods))
+					continue;
 
-                    $descriptors[] = $descriptor;
+				$routes      = array();
+				$descriptors = array();
 
-                    // @ignore annotations force the AutoRouter to ignore that method
-                    if ($method->hasAnnotation("ignore"))
-                        continue;
+				foreach($methods as $method)
+				{
+					$annotations = $this->buildAnnotationDescriptors($method->getAnnotations());
 
-                    if (!is_object($class) && !$method->getReflectionObject()->isStatic())
-                    {
-                        throw new Exception($method->name . " is not statically accessible. Try passing " .
-                            "a class instance of " . $class . " to the AutoRoute plugin " .
-                            "instead of the class name.");
-                    }
+					// if there is no @url annotation, ignore this method
+					if(!$method->hasAnnotation(self::ROUTE))
+						continue;
 
-                    $route = $this->createRoute($method, $class, $descriptor);
+					$descriptor = new RouteDescriptor($annotations, $method);
+					$descriptors[] = $descriptor;
 
-                    $routes[] = $route;
-                    $allRoutes[] = $route;
-                }
+					// @ignore annotations force the AutoRouter to ignore that method
+					if($method->hasAnnotation("ignore"))
+						continue;
 
-                foreach ($routes as $route)
-                {
-                    if(empty($route))
-                        continue;
+					// if the auto-route callable cannot be accessed, an exception is thrown
+					if(!is_object($class) && !$method->getReflectionObject()->isStatic())
+					{
+						throw new Exception($method->name . " is not statically accessible. Try passing " .
+							"a class instance of " . $class . " to the AutoRoute plugin " .
+							"instead of the class name.");
+					}
 
-                    $slimRoute = $this->getSlimInstance()->map($route->getUri(), $route->getCallback());
-                    foreach ($route->getMethods() as $method)
-                        $slimRoute->via($method);
-                }
-            }
+					// create the auto-route
+					$route = $this->createRoute($method, $class, $descriptor);
 
-            $this->routes = $allRoutes;
-            $this->slimInstance->applyHook("slim.plugin.autoroute.ready", $allRoutes);
-        }
+					$routes[]    = $route;
+					$allRoutes[] = $route;
+				}
 
-        /**
-         * @param array $annotations
-         * @return array
-         */
-        private function buildAnnotationDescriptors($annotations)
-        {
-            if(empty($annotations))
-                return;
+				foreach($routes as $route)
+				{
+					if(empty($route))
+						continue;
 
-            $descriptors = array();
-            foreach($annotations as $annotation)
-            {
-                if(empty($annotation) || empty($annotation->name))
-                    continue;
+					// create Slim routes for the auto-route
+					$slimRoute = $this->getSlimInstance()->map($route->getUri(), $route->getCallback());
+					foreach($route->getMethods() as $method)
+						$slimRoute->via($method);
 
-                $descriptors[] = new RouteAnnotation($annotation->name, $annotation->values);
-            }
+					$name = $route->getName();
+					if(!empty($name))
+						$slimRoute->name($name);
+				}
+			}
 
-            return $descriptors;
-        }
+			// set the globally accessible list of auto-routes
+			$this->getSlimInstance()->routes = $allRoutes;
+			$this->slimInstance->applyHook("slim.plugin.autoroute.ready", $allRoutes);
+		}
 
-        /**
-         * @param MethodElement $method
-         * @param string|object $class
-         * @param RouteDescriptor $descriptor
-         *
-         * @return Route
-         */
-        private function createRoute(MethodElement $method, $class, RouteDescriptor $descriptor)
-        {
-            $uri = $this->getRouteAnnotation($method);
-            if(!$uri)
-                return null;
+		/**
+		 * Build the route annotation descriptors
+		 *
+		 * @param array $annotations
+		 *
+		 * @return array
+		 */
+		private function buildAnnotationDescriptors($annotations)
+		{
+			if(empty($annotations))
+				return;
 
-            $httpMethods = $this->getRouteMethods($method);
-            $authorizedUsers = $this->getAuthorizedUsers($method);
+			$descriptors = array();
+			foreach($annotations as $annotation)
+			{
+				if(empty($annotation) || empty($annotation->name))
+					continue;
 
-            $route = new Route($descriptor);
-            $route->setUri($uri);
-            $route->setMethods($httpMethods);
-            $route->setAuthorizedUsers($authorizedUsers);
-            $route->setCallback(array($class, $method->name));
+				$descriptors[] = new RouteAnnotation($annotation->name, $annotation->values);
+			}
 
-            return $route;
-        }
+			return $descriptors;
+		}
 
-        private function getRouteAnnotation(MethodElement $method)
-        {
-            $routeAnnotation = $method->getAnnotation(self::ROUTE);
+		/**
+		 * Create the auto-route
+		 *
+		 * @param MethodElement   $method
+		 * @param string|object   $class
+		 * @param RouteDescriptor $descriptor
+		 *
+		 * @return Route
+		 */
+		private function createRoute(MethodElement $method, $class, RouteDescriptor $descriptor)
+		{
+			$uri = $this->getRouteAnnotation($method);
+			if(!$uri)
+				return null;
 
-            if (!empty($routeAnnotation) && (empty($routeAnnotation->values) || empty($routeAnnotation->values[0])))
-            {
-                throw new RuntimeException("The method [" . $method->getClass()->name . "::" . $method->name . "] requires " .
-                    "a value for the @".self::ROUTE." annotation. Example:\n" .
-                    "/**\n" .
-                    "* @".self::ROUTE." /users/get\n" .
-                    "*/");
-            }
+			$name            = $this->getNameAnnotation($method);
+			$httpMethods     = $this->getRouteMethods($method);
+			$authorizedUsers = $this->getAuthorizedUsers($method);
+			$template        = $this->getTemplateAnnotation($method);
+			$render          = $this->getRenderAnnotation($method);
 
-            if(!empty($routeAnnotation))
-                return $routeAnnotation->values[0];
+			// set the auto-route properties based on the provided annotations
+			$route = new Route($descriptor);
+			$route->setName($name);
+			$route->setUri($uri);
+			$route->setMethods($httpMethods);
+			$route->setAuthorizedUsers($authorizedUsers);
+			$route->setTemplate($template);
+			$route->setRender($render);
+			$route->setCallback(array($class, $method->name));
 
-            return null;
-        }
+			return $route;
+		}
 
-        private function getRouteMethods($method)
-        {
-            $routeMethodsAnnotation = $method->getAnnotation(self::VERBS);
+		/**
+		 * Get the @url annotation value for a particular auto-route callable
+		 *
+		 * @param \DocBlock\Element\MethodElement $method
+		 *
+		 * @return null
+		 * @throws \RuntimeException
+		 */
+		private function getRouteAnnotation(MethodElement $method)
+		{
+			$routeAnnotation = $method->getAnnotation(self::ROUTE);
 
-            if (!$routeMethodsAnnotation)
-            {
-                throw new Exception("No @".self::VERBS." annotation could be found in [" . $method->getClass()->name . "::" . $method->name . "]. " .
-                    "This annotation is required for routing. " .
-                    "Add a @ignore annotation to exclude this method from auto-routing");
-            }
+			if(!empty($routeAnnotation) && (empty($routeAnnotation->values) || empty($routeAnnotation->values[0])))
+			{
+				throw new RuntimeException("The method [" . $method->getClass()->name . "::" . $method->name . "] requires " .
+					"a value for the @" . self::ROUTE . " annotation. Example:\n" .
+					"/**\n" .
+					"* @" . self::ROUTE . " /users/get\n" .
+					"*/");
+			}
 
-            if (empty($routeMethodsAnnotation->values) || empty($routeMethodsAnnotation->values[0]))
-            {
-                throw new RuntimeException("The method [" . $method->getClass()->name . "::" . $method->name . "] requires " .
-                    "a value for the @".self::VERBS." annotation. Example:\n" .
-                    "/**\n" .
-                    "* @".self::VERBS."   GET,POST\n" .
-                    "*/");
-            }
+			if(!empty($routeAnnotation))
+				return $routeAnnotation->values[0];
 
-            return explode(",", $routeMethodsAnnotation->values[0]);
-        }
+			return null;
+		}
 
-        private function getAuthorizedUsers($method)
-        {
-            $authorizeAnnotation = $method->getAnnotation(self::AUTH);
+		/**
+		 * Get the @verbs annotation value for a particular auto-route callable
+		 *
+		 * @param $method
+		 *
+		 * @return array
+		 * @throws \RuntimeException
+		 * @throws \Exception
+		 */
+		private function getRouteMethods($method)
+		{
+			$routeMethodsAnnotation = $method->getAnnotation(self::VERBS);
 
-            // check for spelling errors
-            if(empty($authorizeAnnotation))
-                $authorizeAnnotation = $method->getAnnotation(self::AUTH);
+			if(!$routeMethodsAnnotation)
+			{
+				throw new Exception("No @" . self::VERBS . " annotation could be found in [" . $method->getClass()->name . "::" . $method->name . "]. " .
+					"This annotation is required for routing. " .
+					"Add a @ignore annotation to exclude this method from auto-routing");
+			}
 
-            if(empty($authorizeAnnotation))
-                return null;
+			if(empty($routeMethodsAnnotation->values) || empty($routeMethodsAnnotation->values[0]))
+			{
+				throw new RuntimeException("The method [" . $method->getClass()->name . "::" . $method->name . "] requires " .
+					"a value for the @" . self::VERBS . " annotation. Example:\n" .
+					"/**\n" .
+					"* @" . self::VERBS . "   GET,POST\n" .
+					"*/");
+			}
 
-            if (empty($authorizeAnnotation->values) || empty($authorizeAnnotation->values[0]))
-            {
-                throw new RuntimeException("The method [" . $method->getClass()->name . "::" . $method->name . "] requires " .
-                    "a value for the @".self::AUTH." annotation. Example:\n" .
-                    "/**\n" .
-                    "* @".self::AUTH."	user,admin\n" .
-                    "*/");
-            }
+			return explode(",", $routeMethodsAnnotation->values[0]);
+		}
 
-            return explode(",", $authorizeAnnotation->values[0]);
-        }
-    }
+		/**
+		 * Get the @auth annotation value for a particular auto-route callable
+		 *
+		 * @param $method
+		 *
+		 * @return array|null
+		 * @throws \RuntimeException
+		 */
+		private function getAuthorizedUsers($method)
+		{
+			$authorizeAnnotation = $method->getAnnotation(self::AUTH);
 
-?>
+			// check for spelling errors
+			if(empty($authorizeAnnotation))
+				$authorizeAnnotation = $method->getAnnotation(self::AUTH);
+
+			if(empty($authorizeAnnotation))
+				return null;
+
+			if(empty($authorizeAnnotation->values) || empty($authorizeAnnotation->values[0]))
+			{
+				throw new RuntimeException("The method [" . $method->getClass()->name . "::" . $method->name . "] requires " .
+					"a value for the @" . self::AUTH . " annotation. Example:\n" .
+					"/**\n" .
+					"* @" . self::AUTH . "	user,admin\n" .
+					"*/");
+			}
+
+			return explode(",", $authorizeAnnotation->values[0]);
+		}
+
+		/**
+		 * Get the @template annotation value for a particular auto-route callable
+		 *
+		 * @param \DocBlock\Element\MethodElement $method
+		 *
+		 * @return string
+		 */
+		private function getTemplateAnnotation(MethodElement $method)
+		{
+			$templateAnnotation = $method->getAnnotation(self::TEMPLATE);
+
+			if(empty($templateAnnotation) || count($templateAnnotation->values) < 1)
+				return null;
+
+			return $templateAnnotation->values[0];
+		}
+
+		/**
+		 * Get the @render annotation value for a particular auto-route callable
+		 *
+		 * @param $method
+		 *
+		 * @return string
+		 */
+		private function getRenderAnnotation($method)
+		{
+			$renderAnnotation = $method->getAnnotation(self::RENDER);
+
+			if(empty($renderAnnotation) || count($renderAnnotation->values) < 1)
+				return "always";
+
+			return $renderAnnotation->values[0];
+		}
+
+		/**
+		 * Get the @name annotation value for a particular auto-route callable
+		 *
+		 * @param $method
+		 *
+		 * @return string
+		 */
+		private function getNameAnnotation($method)
+		{
+			$nameAnnotation = $method->getAnnotation(self::NAME);
+
+			if(empty($nameAnnotation) || count($nameAnnotation->values) < 1)
+				return null;
+
+			return $nameAnnotation->values[0];
+		}
+	}
+
+	?>

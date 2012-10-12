@@ -28,7 +28,7 @@ After you've done this, run `php composer.phar update` and *Composer* will downl
 #### How does Spore work? (FYI)
 **Spore** is an extension library built on top of [Slim Framework](http://slimframework.com/). What this means is that **Spore** requires Slim to operate, and this and all other dependencies are automatically downloaded for you by *Composer*.
 
-**Spore** works by leveraging the basic HTTP features and adding some extra functionality on top of it. **Spore** does not need any modifications to the canonical Slim library, but rather overrides a couple operations or properties at runtime.
+**Spore** works by leveraging the basic HTTP features and adding some extra functionality on top of Slim. **Spore** does not need any modifications to the canonical Slim library, but rather overrides a couple operations or properties at runtime.
 
 If you've used [Slim Framework](http://slimframework.com) before, you'll be able to do everything you've done before, except with **Spore** you'll simply use the `\Spore\Spore` class instead of the `\Slim\Slim` class.
 
@@ -39,9 +39,7 @@ If you've used [Slim Framework](http://slimframework.com) before, you'll be able
 ## Hello Spore!
 **Build your first Spore application**
 
-&nbsp;
-
-Create a new **PHP** page and use the following code:
+Create a new **index.php** page and use the following code:
 
 ```php
 <?php
@@ -83,7 +81,7 @@ Now, navigate to your **PHP** page in your browser and you will see the followin
 
 ## Using the examples
 
-In your project, open the file `TestService.php` located under `/vendor/dannykopping/spore/Spore/Services`.
+In your project, open the file `TestService.php` located under `/vendor/dannykopping/spore/examples/services`.
 
 Have a look at the first function in the class:
 
@@ -126,10 +124,10 @@ So, how did **Spore** know to route the request URL `/example1` to this function
  * @verbs		GET
  */
 ```
-In **Spore**, you can simply annotate your functions with ReSTful metadata (such as `@url`, `@verbs` and `@auth`). You can find out more about **Routing and Annotations** in the next chapter.
+In **Spore**, you can simply annotate your functions with ReSTful metadata (such as `@url` and `@verbs`). You can find out more about [**Routing and Annotations**](03-Diving-Deeper.md#routing-and-annotations) in the next chapter.
 
 #### Explore!
-There are 8 examples in `TestService.php` which show off some of the things you can do with Spore. Explore, have fun and contribute some of your own ;)
+There are a number of examples in `TestService.php` which show off some of the things you can do with Spore. Explore, have fun and contribute some of your own ;)
 
 ###Feel like diving deeper?
 Head over to the [**next chapter**](03-Diving-Deeper.md)
