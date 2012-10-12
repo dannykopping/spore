@@ -1,4 +1,4 @@
-## What is Spore?
+## What is [Spore](https://github.com/dannykopping/spore/wiki/)?
 
 Spore is a set of useful extensions to the [Slim Framework](http://www.slimframework.com/) created by the inimitable [Josh Lockhart](https://twitter.com/codeguy). Spore also contains a few useful tools for creating professional `ReSTful` APIs with minimum effort and high code readability.
 
@@ -18,4 +18,4 @@ Spore is a set of useful extensions to the [Slim Framework](http://www.slimframe
 
 ---
 
-Check out [the wiki](wiki/) for detailed documentation
+Check out [the wiki](https://github.com/dannykopping/spore/wiki/) for detailed documentation
