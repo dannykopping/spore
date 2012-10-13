@@ -132,8 +132,23 @@
 				$req->params = $params;
 
 			// assign deserialized HTTP request body to Request::$data property
-			if((in_array("PUT", $route->getHttpMethods()) || in_array("POST", $route->getHttpMethods())) && !empty($body))
-				$req->data = $body;
+			if((in_array("PUT", $route->getHttpMethods()) || in_array("POST", $route->getHttpMethods())))
+			{
+				// body was deserialized correctly
+				if(!empty($body))
+					$req->data = $body;
+				else
+				{
+					if(!empty($env['slim.request.form_hash']) || !empty($_FILES))
+					{
+						$req->data = $env['slim.request.form_hash'];
+						if(!empty($_FILES))
+						{
+							$req->files = $_FILES;
+						}
+					}
+				}
+			}
 
 			if(!empty($env["QUERY_STRING"]))
 			{
