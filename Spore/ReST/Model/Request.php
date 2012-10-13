@@ -23,6 +23,11 @@
 		public $params = array();
 
 		/**
+		 * @var array				The uploaded files information
+		 */
+		public $files = array();
+
+		/**
 		 * @var \Slim\Http\Request	A reference to the Slim Request
 		 */
 		private $request;

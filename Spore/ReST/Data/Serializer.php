@@ -71,11 +71,12 @@
 				return $data;
 
 			$defaultContentType = $app->config("content-type");
-			$serializer         = self::$contentTypes[$contentType];
-			if(!isset($serializer))
+			$serializer         = isset(self::$contentTypes[$contentType]) ? self::$contentTypes[$contentType] : null;
+
+			if(empty($serializer))
 				$serializer = self::$contentTypes[$defaultContentType];
 
-			if(!$serializer)
+			if(empty($serializer))
 				throw new Exception("Cannot find serializer for default content type \"" . $defaultContentType . "\"");
 
 			if(class_exists($serializer))
