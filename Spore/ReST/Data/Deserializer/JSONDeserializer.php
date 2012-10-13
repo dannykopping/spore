@@ -1,9 +1,9 @@
 <?php
 	namespace Spore\ReST\Data\Deserializer;
 
-	use Spore\ReST\Data\Deserializer\Base;
+    use Spore\ReST\Data\Base;
 
-    class JSONDeserializer extends Base
+	class JSONDeserializer extends Base
     {
         /**
          * Parse JSON

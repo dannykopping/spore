@@ -1,9 +1,9 @@
 <?php
 	namespace Spore\ReST\Data\Serializer;
 
-	use Spore\ReST\Data\Serializer\Base;
+    use Spore\ReST\Data\Base;
 
-    class JSONSerializer extends Base
+	class JSONSerializer extends Base
     {
         public static function parse($data)
         {

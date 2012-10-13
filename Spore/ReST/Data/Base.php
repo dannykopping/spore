@@ -1,13 +1,13 @@
 <?php
-	namespace Spore\ReST\Data\Serializer;
+	namespace Spore\ReST\Data;
 
     /**
-	 *	The Base serialization class
+	 *	The Base serialization/deserialization class
 	 */
 	abstract class Base
     {
 		/**
-		 * Parse the given data into an encoding
+		 * Parse the given data to/from an encoding
 		 *
 		 * @param $data
 		 */
