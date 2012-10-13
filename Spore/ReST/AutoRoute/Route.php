@@ -15,7 +15,7 @@
 		private $_name;
 
 		/**
-		 * @var	string		The @name annotation value
+		 * @var	string		The @url annotation value
 		 */
 		private $_uri;
 
@@ -43,6 +43,11 @@
 		 * @var	string		The @render annotation value
 		 */
 		private $_render;
+
+		/**
+		 * @var	string		The @condition annotation values
+		 */
+		private $_conditions;
 
 		/**
 		 * @var	callable	The callback function related to this auto-route
@@ -252,6 +257,26 @@
 		public function getName()
 		{
 			return $this->_name;
+		}
+
+		/**
+		 * Conditions property setter
+		 *
+		 * @param string $conditions
+		 */
+		public function setConditions($conditions)
+		{
+			$this->_conditions = $conditions;
+		}
+
+		/**
+		 * Conditions property getter
+		 *
+		 * @return string
+		 */
+		public function getConditions()
+		{
+			return $this->_conditions;
 		}
 	}
 

@@ -139,4 +139,15 @@
 				"ajax"		  => $request->request()->isAjax()
 			);
 		}
+
+		/**
+		 * @url            	/example11/:identifier/:name
+		 * @verbs        	GET
+		 * @condition       identifier      [^xX]+
+		 * @condition       name            [a-z]{3,}
+		 */
+		public function example11(Request $request)
+		{
+			return sprintf("Congrats %s! Your identifier is %s", $request->params['name'], $request->params['identifier']);
+		}
 	}
