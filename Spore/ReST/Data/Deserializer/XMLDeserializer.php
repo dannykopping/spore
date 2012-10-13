@@ -1,8 +1,8 @@
 <?php
 	namespace Spore\ReST\Data\Deserializer;
 
-	use Spore\ReST\Data\Deserializer\Base;
 	use SimpleXMLElement;
+	use Spore\ReST\Data\Base;
 	use stdClass;
 
 	class XMLDeserializer extends Base

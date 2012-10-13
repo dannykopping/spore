@@ -19,15 +19,6 @@
 		public function __construct($app, $settings = array())
         {
             parent::__construct($app, $settings);
-
-            $this->contentTypes = array_merge(array(
-			   'application/json' 						=> "\\Spore\\ReST\\Data\\Deserializer\\JSONDeserializer",
-			   'application/xml'  						=> "\\Spore\\ReST\\Data\\Deserializer\\XMLDeserializer",
-			   'text/xml'         						=> "\\Spore\\ReST\\Data\\Deserializer\\XMLDeserializer",
-			   'text/csv'         						=> "\\Spore\\ReST\\Data\\Deserializer\\CSVDeserializer",
-			   'application/x-www-form-urlencoded'      => "\\Spore\\ReST\\Data\\Deserializer\\FormDeserializer",
-			   'multipart/form-data'      				=> "\\Spore\\ReST\\Data\\Deserializer\\FormDeserializer"
-		  	), $settings);
         }
 
 
@@ -45,29 +36,24 @@
 		 */
         protected function parse($data, $contentType)
         {
+			$this->contentTypes = $this->getApplication()->config("deserializers");
+
             if(empty($data))
                 return $data;
 
             $defaultContentType = $this->getApplication()->config("content-type");
             $deserializer = isset($this->contentTypes[$contentType]) ? $this->contentTypes[$contentType] : null;
 
-			if(empty($deserializer))
+			if(empty($deserializer) && empty($contentType))
 				$deserializer = $this->contentTypes[$defaultContentType];
 
-			if(empty($deserializer))
-                throw new Exception("Cannot find deserializer for default content type \"" . $defaultContentType . "\"");
+			if(empty($deserializer) || !class_exists($deserializer))
+                throw new Exception("Cannot find deserializer for content type \"" . $contentType . "\"");
 
-            if(class_exists($deserializer))
-            {
-                $result = call_user_func(array($deserializer, "parse"), $data);
-                if(!empty($result))
-                    return $result;
+			$result = call_user_func(array($deserializer, "parse"), $data);
+			if(!empty($result))
+				return $result;
 
-				throw new Exception("An error occurred while attempting to deserialize data");
-            }
-            else
-                throw new Exception("Cannot find deserializer type \"" . $deserializer . "\"");
-
-            return $data;
+			throw new Exception("An error occurred while attempting to deserialize data");
         }
     }

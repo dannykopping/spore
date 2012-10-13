@@ -58,7 +58,22 @@
 				"gzip" => true,
 				"services" => realpath(dirname(__DIR__)."/examples/services"),
 				"templates.path" => realpath(dirname(__DIR__)."/examples/templates"),
-				"services-ns" => "Spore\\Services"
+				"services-ns" => "Spore\\Services",
+
+				"deserializers" => array(
+					"application/json" 						=> "\\Spore\\ReST\\Data\\Deserializer\\JSONDeserializer",
+					"application/xml"  						=> "\\Spore\\ReST\\Data\\Deserializer\\XMLDeserializer",
+					"text/xml"         						=> "\\Spore\\ReST\\Data\\Deserializer\\XMLDeserializer",
+					"text/csv"         						=> "\\Spore\\ReST\\Data\\Deserializer\\CSVDeserializer",
+					"application/x-www-form-urlencoded"     => "\\Spore\\ReST\\Data\\Deserializer\\FormDeserializer",
+					"multipart/form-data"      				=> "\\Spore\\ReST\\Data\\Deserializer\\FormDeserializer"
+				),
+
+				"serializers" => array(
+					"application/json" 						=> "\\Spore\\ReST\\Data\\Serializer\\JSONSerializer",
+					"application/xml" 						=> "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
+					"text/xml"         						=> "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
+				)
 			);
 
 			return array_merge($default, $extended);

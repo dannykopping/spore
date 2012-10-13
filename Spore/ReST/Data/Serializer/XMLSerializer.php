@@ -1,8 +1,8 @@
 <?php
 	namespace Spore\ReST\Data\Serializer;
 
-	use Spore\ReST\Data\Serializer\Base;
 	use SimpleXMLElement;
+	use Spore\ReST\Data\Base;
 	use stdClass;
 
     /**
