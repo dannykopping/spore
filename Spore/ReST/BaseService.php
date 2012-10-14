@@ -64,7 +64,7 @@
 		}
 
 		/**
-		 * @return mixed
+		 * @return Spore
 		 */
 		public function getApp()
 		{
@@ -80,7 +80,7 @@
 		}
 
 		/**
-		 * @return mixed
+		 * @return Request
 		 */
 		public function getRequest()
 		{
@@ -96,7 +96,7 @@
 		}
 
 		/**
-		 * @return mixed
+		 * @return Response
 		 */
 		public function getResponse()
 		{
@@ -112,7 +112,7 @@
 		}
 
 		/**
-		 * @return mixed
+		 * @return array
 		 */
 		public function getAutoroute()
 		{
