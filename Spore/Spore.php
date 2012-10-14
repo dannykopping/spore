@@ -4,6 +4,8 @@
 	require_once __DIR__."/../examples/services/TestService.php";
 
 	use Slim\Slim;
+	use RecursiveDirectoryIterator;
+	use RecursiveIteratorIterator;
 	use Spore\ReST\AutoRoute\Route;
 	use Spore\ReST\Model\Status;
 	use Spore\ReST\Data\Serializer;
@@ -173,6 +175,43 @@
 
 			$this->config("services", $services);
 			$this->updateAutoRoutes();
+		}
+
+		public function addServicesDirectory($path, $namespace="")
+		{
+			$validPath = realpath($path);
+			if(!$validPath)
+				throw new Exception("Path to services directory is invalid: \"%s\"", $path);
+
+			$files       = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($validPath),
+												RecursiveIteratorIterator::LEAVES_ONLY);
+			$classes     = array();
+
+			foreach($files as $file)
+			{
+				if(empty($file))
+					continue;
+
+				$e = explode('.', $file->getFileName());
+				if(empty($e) || count($e) < 2)
+					continue;
+
+				$path      = $file->getRealPath();
+				$className = $e[0];
+				$extension = $e[1];
+
+				if($extension != "php")
+					continue;
+
+				// check namespaces
+				if(!empty($namespace))
+					$className = $namespace . "\\$className";
+
+				require_once $path;
+				$this->addService(new $className);
+			}
+
+
 		}
 
 		/**
