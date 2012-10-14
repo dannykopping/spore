@@ -72,8 +72,24 @@
 			if(!is_callable($callable))
 				return false;
 
-			// call the autoroute's callback function and pass in the Request and Response objects
-			$result      = call_user_func_array($callable, array($req, &$resp));
+			$passParams = $app->config("pass-params") == true;
+
+			if($passParams)
+			{
+				// call the autoroute's callback function and pass in the Request and Response objects
+				$result = call_user_func_array($callable, array($req, &$resp));
+			}
+			else
+			{
+				$app->applyHook("spore.autoroute.before", array(
+                           "request" => &$req,
+                           "response" => &$resp,
+                           "autoroute" => &$autoroute,
+				));
+
+				$result = call_user_func_array($callable, array());
+			}
+
 			$outputEmpty = ob_get_length() <= 0;
 			$output      = "";
 

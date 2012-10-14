@@ -156,7 +156,7 @@
 
 			// set the globally accessible list of auto-routes
 			$this->getSlimInstance()->routes = $allRoutes;
-			$this->slimInstance->applyHook("slim.plugin.autoroute.ready", $allRoutes);
+			$this->slimInstance->applyHook("spore.autoroute.ready", $allRoutes);
 		}
 
 		/**
