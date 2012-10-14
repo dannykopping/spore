@@ -1,6 +1,8 @@
 <?php
 	namespace Spore;
 
+	require_once __DIR__."/../examples/services/TestService.php";
+
 	use Slim\Slim;
 	use Spore\ReST\AutoRoute\Route;
 	use Spore\ReST\Model\Status;
@@ -56,9 +58,8 @@
 				"debug" => "true",
 				"content-type" => "application/json",
 				"gzip" => true,
-				"services" => realpath(dirname(__DIR__)."/examples/services"),
+				"services" => array(new \TestService()),
 				"templates.path" => realpath(dirname(__DIR__)."/examples/templates"),
-				"services-ns" => "Spore\\Services",
 
 				"deserializers" => array(
 					"application/json" 						=> "\\Spore\\ReST\\Data\\Deserializer\\JSONDeserializer",
@@ -103,7 +104,7 @@
 		 */
 		public function updateAutoRoutes()
 		{
-			$classes = $this->controller->getAllPHPServices(); // add auto-routing
+			$classes = $this->controller->findServices(); // add auto-routing
 			$this->controller->addAutoRouting($classes);
 		}
 
@@ -152,6 +153,26 @@
 		public static function registerAutoloader()
 		{
 			spl_autoload_register(__NAMESPACE__ . "\\Spore::autoload");
+		}
+
+		public function addService($pathOrFile)
+		{
+			$services = $this->config("services");
+			if(!$services)
+				$services = array();
+
+			if(is_array($pathOrFile))
+			{
+				$services = array_merge($services, $pathOrFile);
+			}
+			else
+			{
+				array_push($services, $pathOrFile);
+			}
+
+
+			$this->config("services", $services);
+			$this->updateAutoRoutes();
 		}
 
 		/**

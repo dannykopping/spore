@@ -54,11 +54,15 @@
 
 			// check for a matching autoroute based on the request URI
 			$autoroute = null;
-			foreach($app->routes as $r)
+
+			if(count($app->routes) > 0)
 			{
-				$matches = $route->matches($r->getUri());
-				if($matches)
-					$autoroute = $r;
+				foreach($app->routes as $r)
+				{
+					$matches = $route->matches($r->getUri());
+					if($matches)
+						$autoroute = $r;
+				}
 			}
 
 			// build Request and Response objects to be passed to callable

@@ -26,14 +26,19 @@
 		private static $instance;
 
 		/**
-		 * @var 	Spore                         	Reference to Spore application
+		 * @var     Spore                             Reference to Spore application
 		 */
 		private $_slimInstance;
 
 		/**
-		 * @var    callable                        	Authorization callback function
+		 * @var    callable                            Authorization callback function
 		 */
 		private $_authorizationCallback;
+
+		/**
+		 * @var     AutoRouter
+		 */
+		private $autorouter;
 
 		/**
 		 * Initialize the Controller
@@ -101,37 +106,17 @@
 		 *
 		 * @return array
 		 */
-		public function getAllPHPServices()
+		public function findServices()
 		{
 			$app = $this->getApp();
 
-			$servicesDir = $app->config("services");
-			$servicesNS  = $app->config("services-ns");
-			$files       = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($servicesDir), RecursiveIteratorIterator::LEAVES_ONLY);
-			$classes     = array();
+			$services = $app->config("services");
+			$classes  = array();
 
-			foreach($files as $file)
+			foreach($services as $service)
 			{
-				if(empty($file))
-					continue;
-
-				$e = explode('.', $file->getFileName());
-				if(empty($e) || count($e) < 2)
-					continue;
-
-				$path      = $file->getRealPath();
-				$className = $e[0];
-				$extension = $e[1];
-
-				if($extension != "php")
-					continue;
-
-				// check namespaces
-				if(!empty($servicesNS))
-					$className = $servicesNS . "\\$className";
-
-				require_once $path;
-				$classes[] = new $className;
+				if(is_object($service) && !is_string($service))
+					$classes[] = $service;
 			}
 
 			return $classes;
@@ -145,7 +130,7 @@
 		public function addAutoRouting(array $classes)
 		{
 			$app    = $this->getApp();
-			$router = new AutoRouter($app, $classes);
+			$this->autorouter = new AutoRouter($app, $classes);
 		}
 
 		/**
