@@ -58,7 +58,7 @@
 		/**
 		 * @param \Spore\Spore $app
 		 */
-		public function setApp(Spore $app)
+		public function setApp($app)
 		{
 			$this->app = $app;
 		}
@@ -74,7 +74,7 @@
 		/**
 		 * @param Model\Request $request
 		 */
-		public function setRequest(Request $request)
+		public function setRequest($request)
 		{
 			$this->request = $request;
 		}
@@ -90,7 +90,7 @@
 		/**
 		 * @param Model\Response $response
 		 */
-		public function setResponse(Response $response)
+		public function setResponse($response)
 		{
 			$this->response = $response;
 		}
@@ -106,7 +106,7 @@
 		/**
 		 * @param AutoRoute\Route $autoroute
 		 */
-		public function setAutoroute(Route $autoroute)
+		public function setAutoroute($autoroute)
 		{
 			$this->autoroute = $autoroute;
 		}
