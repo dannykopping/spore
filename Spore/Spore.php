@@ -60,7 +60,8 @@
 				"debug" => "true",
 				"content-type" => "application/json",
 				"gzip" => true,
-				"services" => array(new \TestService()),
+				"services" => array(),
+				"pass-params" => true,
 				"templates.path" => realpath(dirname(__DIR__)."/examples/templates"),
 
 				"deserializers" => array(
@@ -98,7 +99,7 @@
 			$this->authFailed(array($this, "authFailedHandler")); // add default authorization failed handler
 			$this->authCallback(array($this, "defaultAuthCallback")); // add default auth callback
 
-			$this->updateAutoRoutes();
+			$this->addService(new \TestService($this));
 		}
 
 		/**

@@ -1,12 +1,13 @@
 <?php
 	use Spore\ReST\Model\Request;
+	use Spore\ReST\BaseService;
 	use Spore\ReST\Model\Status;
 	use Spore\ReST\Model\Response;
 
 	/**
 	 *
 	 */
-	class TestService
+	class TestService extends BaseService
 	{
 		/**
 		 * @url			/example1
