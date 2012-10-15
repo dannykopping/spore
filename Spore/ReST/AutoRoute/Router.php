@@ -57,12 +57,11 @@
 
 			if(count($app->routes) > 0)
 			{
-				foreach($app->routes as $r)
+				foreach($app->routes as $testRoute)
 				{
-					$matches = $route->matches($r->getUri());
-					if($matches)
+					if(!empty($callable) && $callable === $testRoute->getCallback())
 					{
-						$autoroute = $r;
+						$autoroute = $testRoute;
 						break;
 					}
 				}
