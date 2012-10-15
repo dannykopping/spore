@@ -182,7 +182,7 @@
 		{
 			$validPath = realpath($path);
 			if(!$validPath)
-				throw new Exception("Path to services directory is invalid: \"%s\"", $path);
+				throw new Exception(sprintf("Path to services directory is invalid: \"%s\"", $path));
 
 			$files       = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($validPath),
 												RecursiveIteratorIterator::LEAVES_ONLY);
