@@ -1,7 +1,7 @@
 <?php
 	namespace Spore\ReST\Data\Deserializer;
 
-	use Spore\ReST\Data\Deserializer\Base;
+    use Spore\ReST\Data\Base;
 
     class FormDeserializer extends Base
     {
