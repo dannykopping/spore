@@ -61,7 +61,10 @@
 				{
 					$matches = $route->matches($r->getUri());
 					if($matches)
+					{
 						$autoroute = $r;
+						break;
+					}
 				}
 			}
 
