@@ -1,7 +1,11 @@
 <?php
 	namespace Spore;
 
+	require_once __DIR__."/../examples/services/TestService.php";
+
 	use Slim\Slim;
+	use RecursiveDirectoryIterator;
+	use RecursiveIteratorIterator;
 	use Spore\ReST\AutoRoute\Route;
 	use Spore\ReST\Model\Status;
 	use Spore\ReST\Data\Serializer;
@@ -56,9 +60,24 @@
 				"debug" => "true",
 				"content-type" => "application/json",
 				"gzip" => true,
-				"services" => realpath(dirname(__DIR__)."/examples/services"),
+				"services" => array(),
+				"pass-params" => true,
 				"templates.path" => realpath(dirname(__DIR__)."/examples/templates"),
-				"services-ns" => "Spore\\Services"
+
+				"deserializers" => array(
+					"application/json" 						=> "\\Spore\\ReST\\Data\\Deserializer\\JSONDeserializer",
+					"application/xml"  						=> "\\Spore\\ReST\\Data\\Deserializer\\XMLDeserializer",
+					"text/xml"         						=> "\\Spore\\ReST\\Data\\Deserializer\\XMLDeserializer",
+					"text/csv"         						=> "\\Spore\\ReST\\Data\\Deserializer\\CSVDeserializer",
+					"application/x-www-form-urlencoded"     => "\\Spore\\ReST\\Data\\Deserializer\\FormDeserializer",
+					"multipart/form-data"      				=> "\\Spore\\ReST\\Data\\Deserializer\\FormDeserializer"
+				),
+
+				"serializers" => array(
+					"application/json" 						=> "\\Spore\\ReST\\Data\\Serializer\\JSONSerializer",
+					"application/xml" 						=> "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
+					"text/xml"         						=> "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
+				)
 			);
 
 			return array_merge($default, $extended);
@@ -80,7 +99,7 @@
 			$this->authFailed(array($this, "authFailedHandler")); // add default authorization failed handler
 			$this->authCallback(array($this, "defaultAuthCallback")); // add default auth callback
 
-			$this->updateAutoRoutes();
+			$this->addService(new \TestService($this));
 		}
 
 		/**
@@ -88,7 +107,7 @@
 		 */
 		public function updateAutoRoutes()
 		{
-			$classes = $this->controller->getAllPHPServices(); // add auto-routing
+			$classes = $this->controller->findServices(); // add auto-routing
 			$this->controller->addAutoRouting($classes);
 		}
 
@@ -137,6 +156,63 @@
 		public static function registerAutoloader()
 		{
 			spl_autoload_register(__NAMESPACE__ . "\\Spore::autoload");
+		}
+
+		public function addService($pathOrFile)
+		{
+			$services = $this->config("services");
+			if(!$services)
+				$services = array();
+
+			if(is_array($pathOrFile))
+			{
+				$services = array_merge($services, $pathOrFile);
+			}
+			else
+			{
+				array_push($services, $pathOrFile);
+			}
+
+
+			$this->config("services", $services);
+			$this->updateAutoRoutes();
+		}
+
+		public function addServicesDirectory($path, $namespace="")
+		{
+			$validPath = realpath($path);
+			if(!$validPath)
+				throw new Exception(sprintf("Path to services directory is invalid: \"%s\"", $path));
+
+			$files       = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($validPath),
+												RecursiveIteratorIterator::LEAVES_ONLY);
+			$classes     = array();
+
+			foreach($files as $file)
+			{
+				if(empty($file))
+					continue;
+
+				$e = explode('.', $file->getFileName());
+				if(empty($e) || count($e) < 2)
+					continue;
+
+				$path      = $file->getRealPath();
+				$className = $e[0];
+				$extension = $e[1];
+
+				if($extension != "php")
+					continue;
+
+				// check namespaces
+				if(!empty($namespace))
+					$className = $namespace . "\\$className";
+
+				require_once $path;
+				$this->addService(new $className);
+			}
+
+
 		}
 
 		/**

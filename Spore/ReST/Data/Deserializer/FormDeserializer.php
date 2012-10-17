@@ -3,10 +3,10 @@
 
     use Spore\ReST\Data\Base;
 
-	class CSVDeserializer extends Base
+    class FormDeserializer extends Base
     {
         /**
-         * Parse CSV
+         * Parse HTML form data
          *
          * This method parses CSV content into a numeric array
          * containing an array of data for each CSV line.
@@ -16,15 +16,8 @@
          */
         public static function parse($data)
         {
-            $temp = fopen('php://memory', 'rw');
-            fwrite($temp, $data);
-            fseek($temp, 0);
-            $res = array();
-            while(($data = fgetcsv($temp)) !== false)
-            {
-                $res[] = $data;
-            }
-            fclose($temp);
+			$res = array();
+			parse_str($data, $res);
             return $res;
         }
     }

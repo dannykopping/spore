@@ -60,6 +60,8 @@
 		const FAILED_DEPENDENCY                = 424;
 		const UPGRADE_REQUIRED	               = 426;
 		const UNASSIGNED		               = 427;
+		const PRECONDITION_REQUIRED	           = 428;
+		const TOO_MANY_REQUESTS	               = 429;
 		const REQUEST_HEADER_TOO_LARGE         = 431;
 
 		// 5XX SERVER ERROR

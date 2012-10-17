@@ -32,7 +32,7 @@
             parent::__construct($slimInstance, $args);
 
 			// apply Slim hooks
-            $this->getSlimInstance()->hook("slim.plugin.autoroute.ready", array($this, "routesReadyHandler"));
+            $this->getSlimInstance()->hook("spore.autoroute.ready", array($this, "routesReadyHandler"));
             $this->getSlimInstance()->hook("slim.before.dispatch", array($this, "checkAuthorizationForRoute"));
         }
 

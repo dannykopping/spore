@@ -54,11 +54,17 @@
 
 			// check for a matching autoroute based on the request URI
 			$autoroute = null;
-			foreach($app->routes as $r)
+
+			if(count($app->routes) > 0)
 			{
-				$matches = $route->matches($r->getUri());
-				if($matches)
-					$autoroute = $r;
+				foreach($app->routes as $testRoute)
+				{
+					if(!empty($callable) && $callable === $testRoute->getCallback())
+					{
+						$autoroute = $testRoute;
+						break;
+					}
+				}
 			}
 
 			// build Request and Response objects to be passed to callable
@@ -68,8 +74,24 @@
 			if(!is_callable($callable))
 				return false;
 
-			// call the autoroute's callback function and pass in the Request and Response objects
-			$result      = call_user_func_array($callable, array($req, &$resp));
+			$passParams = $app->config("pass-params") == true;
+
+			if($passParams)
+			{
+				// call the autoroute's callback function and pass in the Request and Response objects
+				$result = call_user_func_array($callable, array($req, &$resp));
+			}
+			else
+			{
+				$app->applyHook("spore.autoroute.before", array(
+                           "request" => &$req,
+                           "response" => &$resp,
+                           "autoroute" => &$autoroute,
+				));
+
+				$result = call_user_func_array($callable, array());
+			}
+
 			$outputEmpty = ob_get_length() <= 0;
 			$output      = "";
 
@@ -132,8 +154,23 @@
 				$req->params = $params;
 
 			// assign deserialized HTTP request body to Request::$data property
-			if((in_array("PUT", $route->getHttpMethods()) || in_array("POST", $route->getHttpMethods())) && !empty($body))
-				$req->data = $body;
+			if((in_array("PUT", $route->getHttpMethods()) || in_array("POST", $route->getHttpMethods())))
+			{
+				// body was deserialized correctly
+				if(!empty($body))
+					$req->data = $body;
+				else
+				{
+					if(!empty($env['slim.request.form_hash']) || !empty($_FILES))
+					{
+						$req->data = $env['slim.request.form_hash'];
+						if(!empty($_FILES))
+						{
+							$req->files = $_FILES;
+						}
+					}
+				}
+			}
 
 			if(!empty($env["QUERY_STRING"]))
 			{

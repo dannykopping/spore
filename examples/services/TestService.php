@@ -1,6 +1,4 @@
 <?php
-	namespace Spore\Services;
-
 	use Spore\ReST\Model\Request;
 	use Spore\ReST\Model\Status;
 	use Spore\ReST\Model\Response;
@@ -138,5 +136,16 @@
 				"url"         => "http://twig.sensiolabs.org/",
 				"ajax"		  => $request->request()->isAjax()
 			);
+		}
+
+		/**
+		 * @url            	/example11/:identifier/:name
+		 * @verbs        	GET
+		 * @condition       identifier      [^xX]+
+		 * @condition       name            [a-z]{3,}
+		 */
+		public function example11(Request $request)
+		{
+			return sprintf("Congrats %s! Your identifier is %s", $request->params['name'], $request->params['identifier']);
 		}
 	}
