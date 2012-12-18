@@ -204,6 +204,11 @@
 			return $resp;
 		}
 
+        public function getRequestAndResponseObjects($route, $params)
+        {
+            return array($this->getRequestData($route, $params), $this->getResponseData());
+        }
+
 		/**
 		 * If a @template annotation has been defined, this function will return the output
 		 * of Slim's parsing of a template, if the correct @render annotation has been specified

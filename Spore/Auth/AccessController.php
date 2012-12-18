@@ -54,6 +54,10 @@
 		public function checkAuthorizationForRoute($route)
         {
 			$route = $this->getSlimInstance()->router()->current();
+            $router = $this->getSlimInstance()->router();
+            $params = $route->getParams();
+
+            list($request, $response) = $router->getRequestAndResponseObjects($route, $params);
 
             $callable = $route->getCallable();
             $authCallback = self::getAuthorizationCallback();
@@ -80,7 +84,8 @@
                     if (empty($authorizedUsers))
                         return;
 
-                    $authorized = call_user_func_array(self::getAuthorizationCallback(), array($authorizedUsers));
+                    $authorized = call_user_func_array(self::getAuthorizationCallback(),
+                                    array($authorizedUsers, $request, $response));
 
 					// if the defined role is not authorized, call the "authorization failed" handler
                     if (!$authorized)
