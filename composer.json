@@ -5,6 +5,7 @@
     "keywords": ["rest", "slim"],
     "homepage": "https://github.com/dannykopping/spore",
     "license": "MIT",
+    "version": "1.0.1",
     "authors": [
         {
             "name": "Danny Kopping",
