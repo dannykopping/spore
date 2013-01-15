@@ -53,7 +53,7 @@
 		 */
 		public function checkAuthorizationForRoute($route)
         {
-			$route = $this->getSlimInstance()->router()->current();
+			$route = $this->getSlimInstance()->router()->getCurrentRoute();
             $router = $this->getSlimInstance()->router();
             $params = $route->getParams();
 
