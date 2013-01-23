@@ -16,11 +16,8 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "dannykopping/slim": "dev-develop",
+        "slim/slim": ">=2.2.0",
         "dannykopping/docblock": "dev-master"
-    },
-    "replace": {
-        "slim/slim": "*"
     },
     "autoload": {
         "psr-0": {
