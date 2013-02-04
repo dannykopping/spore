@@ -171,7 +171,6 @@ class Spore extends Slim
 
 
         $this->config("services", $services);
-        $this->updateAutoRoutes();
     }
 
     public function addServicesDirectory($path, $namespace = "")
@@ -335,5 +334,12 @@ class Spore extends Slim
         );
 
         $this->halt(Status::UNAUTHORIZED, $data);
+    }
+
+    public function run()
+    {
+        $this->updateAutoRoutes();
+
+        parent::run();
     }
 }
