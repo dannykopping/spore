@@ -63,6 +63,7 @@
 				"services" => array(),
 				"pass-params" => true,
 				"templates.path" => realpath(dirname(__DIR__)."/examples/templates"),
+				"include-examples" => true,
 
 				"deserializers" => array(
 					"application/json" 						=> "\\Spore\\ReST\\Data\\Deserializer\\JSONDeserializer",
@@ -99,7 +100,10 @@
 			$this->authFailed(array($this, "authFailedHandler")); // add default authorization failed handler
 			$this->authCallback(array($this, "defaultAuthCallback")); // add default auth callback
 
-			$this->addService(new \TestService($this));
+            if($this->config("include-examples") == true)
+            {
+                $this->addService(new \TestService($this));
+            }
 		}
 
 		/**
