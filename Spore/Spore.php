@@ -34,6 +34,11 @@ class Spore extends Slim
     private $authFailedHandler;
 
     /**
+     * @var array
+     */
+    public $routes = array();
+
+    /**
      * Constructor
      *
      * @param array $userSettings
