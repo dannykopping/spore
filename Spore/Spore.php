@@ -1,333 +1,339 @@
 <?php
-	namespace Spore;
+namespace Spore;
 
-	require_once __DIR__."/../examples/services/TestService.php";
+require_once __DIR__ . "/../examples/services/TestService.php";
 
-	use Slim\Slim;
-	use RecursiveDirectoryIterator;
-	use RecursiveIteratorIterator;
-	use Spore\ReST\AutoRoute\Route;
-	use Spore\ReST\Model\Status;
-	use Spore\ReST\Data\Serializer;
-	use Exception;
-	use Spore\ReST\Controller;
-	use Spore\ReST\AutoRoute\Router;
+use Slim\Slim;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use Spore\ReST\AutoRoute\Route;
+use Spore\ReST\Model\Status;
+use Spore\ReST\Data\Serializer;
+use Exception;
+use Spore\ReST\Controller;
+use Spore\ReST\AutoRoute\Router;
 
-	/**
-	 *
-	 */
-	class Spore extends Slim
-	{
-		/**
-		 * @var ReST\Controller			The Spore application controller singleton instance
-		 */
-		private $controller;
+/**
+ *
+ */
+class Spore extends Slim
+{
+    /**
+     * @var ReST\Controller            The Spore application controller singleton instance
+     */
+    private $controller;
 
-		/**
-		 * @var array					An array of auto-routes
-		 */
-		private $autoroutes;
+    /**
+     * @var array                    An array of auto-routes
+     */
+    private $autoroutes;
 
-		/**
-		 * @var	callable				The authorization failed callback function
-		 */
-		private $authFailedHandler;
+    /**
+     * @var    callable                The authorization failed callback function
+     */
+    private $authFailedHandler;
 
-		/**
-		 * Constructor
-		 *
-		 * @param array $userSettings
-		 */
-		public function __construct($userSettings = array())
-		{
-			$this->autoroutes = array();
+    /**
+     * Constructor
+     *
+     * @param array $userSettings
+     */
+    public function __construct($userSettings = array())
+    {
+        $this->autoroutes = array();
 
-			parent::__construct($userSettings);
-			$this->init();
-		}
+        parent::__construct($userSettings);
+        $this->init();
+    }
 
-		/**
-		 * Combine the default Slim configuration with
-		 * the default Spore configuration
-		 *
-		 * @return array
-		 */
-		static function getDefaultSettings()
-		{
-			$default = parent::getDefaultSettings();
+    /**
+     * Combine the default Slim configuration with
+     * the default Spore configuration
+     *
+     * @return array
+     */
+    static function getDefaultSettings()
+    {
+        $default = parent::getDefaultSettings();
 
-			$extended = array(
-				"debug" => "true",
-				"content-type" => "application/json",
-				"gzip" => true,
-				"services" => array(),
-				"pass-params" => true,
-				"templates.path" => realpath(dirname(__DIR__)."/examples/templates"),
-				"include-examples" => true,
+        $extended = array(
+            "debug" => "true",
+            "content-type" => "application/json",
+            "gzip" => true,
+            "services" => array(),
+            "pass-params" => true,
+            "templates.path" => realpath(dirname(__DIR__) . "/examples/templates"),
+            "include-examples" => true,
+            "deserializers" => array(
+                "application/json" => "\\Spore\\ReST\\Data\\Deserializer\\JSONDeserializer",
+                "application/xml" => "\\Spore\\ReST\\Data\\Deserializer\\XMLDeserializer",
+                "text/xml" => "\\Spore\\ReST\\Data\\Deserializer\\XMLDeserializer",
+                "text/csv" => "\\Spore\\ReST\\Data\\Deserializer\\CSVDeserializer",
+                "application/x-www-form-urlencoded" => "\\Spore\\ReST\\Data\\Deserializer\\FormDeserializer",
+                "multipart/form-data" => "\\Spore\\ReST\\Data\\Deserializer\\FormDeserializer"
+            ),
+            "serializers" => array(
+                "application/json" => "\\Spore\\ReST\\Data\\Serializer\\JSONSerializer",
+                "application/xml" => "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
+                "text/xml" => "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
+            )
+        );
 
-				"deserializers" => array(
-					"application/json" 						=> "\\Spore\\ReST\\Data\\Deserializer\\JSONDeserializer",
-					"application/xml"  						=> "\\Spore\\ReST\\Data\\Deserializer\\XMLDeserializer",
-					"text/xml"         						=> "\\Spore\\ReST\\Data\\Deserializer\\XMLDeserializer",
-					"text/csv"         						=> "\\Spore\\ReST\\Data\\Deserializer\\CSVDeserializer",
-					"application/x-www-form-urlencoded"     => "\\Spore\\ReST\\Data\\Deserializer\\FormDeserializer",
-					"multipart/form-data"      				=> "\\Spore\\ReST\\Data\\Deserializer\\FormDeserializer"
-				),
+        return array_merge($default, $extended);
+    }
 
-				"serializers" => array(
-					"application/json" 						=> "\\Spore\\ReST\\Data\\Serializer\\JSONSerializer",
-					"application/xml" 						=> "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
-					"text/xml"         						=> "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
-				)
-			);
+    /**
+     *    Initialize the Spore application
+     *     and override a few Slim internals
+     */
+    private function init()
+    {
+        $this->controller = Controller::getInstance();
+        $this->router = new Router($this); // override router class
 
-			return array_merge($default, $extended);
-		}
+        $this->controller->setApp($this);
 
-		/**
-		 *	Initialize the Spore application
-		 * 	and override a few Slim internals
-		 */
-		private function init()
-		{
-			$this->controller = Controller::getInstance();
-			$this->router     = new Router($this); // override router class
+        $this->error(array($this, "errorHandler")); // add default error handler
+        $this->notFound(array($this, "notFoundHandler")); // add default not found handler
+        $this->authFailed(array($this, "authFailedHandler")); // add default authorization failed handler
+        $this->authCallback(array($this, "defaultAuthCallback")); // add default auth callback
 
-			$this->controller->setApp($this);
+        if ($this->config("include-examples") == true) {
+            $this->addService(new \TestService($this));
+        }
+    }
 
-			$this->error(array($this, "errorHandler")); // add default error handler
-			$this->notFound(array($this, "notFoundHandler")); // add default not found handler
-			$this->authFailed(array($this, "authFailedHandler")); // add default authorization failed handler
-			$this->authCallback(array($this, "defaultAuthCallback")); // add default auth callback
+    /**
+     *    Update the controller's auto-route classes
+     */
+    public function updateAutoRoutes()
+    {
+        $classes = $this->controller->findServices(); // add auto-routing
+        $this->controller->addAutoRouting($classes);
+    }
 
-            if($this->config("include-examples") == true)
-            {
-                $this->addService(new \TestService($this));
+
+    /********************************************************************************
+     * PSR-0 Autoloader
+     *
+     * Do not use if you are using Composer to autoload dependencies.
+     *******************************************************************************/
+
+    /**
+     * Slim PSR-0 autoloader from Slim Framework
+     */
+    public static function autoload($className)
+    {
+        $thisClass = str_replace(__NAMESPACE__ . '\\', '', __CLASS__);
+
+        $baseDir = __DIR__;
+
+        if (substr($baseDir, -strlen($thisClass)) === $thisClass) {
+            $baseDir = substr($baseDir, 0, -strlen($thisClass));
+        }
+
+        $className = ltrim($className, '\\');
+        $fileName = $baseDir;
+        $namespace = '';
+        if ($lastNsPos = strripos($className, '\\')) {
+            $namespace = substr($className, 0, $lastNsPos);
+            $namespace = substr($namespace, (strpos($namespace, __NAMESPACE__) + strlen(__NAMESPACE__)));
+            $className = substr($className, $lastNsPos + 1);
+            $fileName .= __NAMESPACE__ . str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
+        }
+        $fileName .= DIRECTORY_SEPARATOR . $className . '.php';
+
+        if (file_exists($fileName)) {
+            require_once $fileName;
+        }
+    }
+
+    /**
+     * Register the PSR-0 autoloader
+     */
+    public static function registerAutoloader()
+    {
+        spl_autoload_register(__NAMESPACE__ . "\\Spore::autoload");
+    }
+
+    public function addService($pathOrFile)
+    {
+        $services = $this->config("services");
+        if (!$services) {
+            $services = array();
+        }
+
+        if (is_array($pathOrFile)) {
+            $services = array_merge($services, $pathOrFile);
+        } else {
+            array_push($services, $pathOrFile);
+        }
+
+
+        $this->config("services", $services);
+        $this->updateAutoRoutes();
+    }
+
+    public function addServicesDirectory($path, $namespace = "")
+    {
+        $validPath = realpath($path);
+        if (!$validPath) {
+            throw new Exception(sprintf("Path to services directory is invalid: \"%s\"", $path));
+        }
+
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($validPath),
+            RecursiveIteratorIterator::LEAVES_ONLY);
+        $classes = array();
+
+        foreach ($files as $file) {
+            if (empty($file)) {
+                continue;
             }
-		}
 
-		/**
-		 *	Update the controller's auto-route classes
-		 */
-		public function updateAutoRoutes()
-		{
-			$classes = $this->controller->findServices(); // add auto-routing
-			$this->controller->addAutoRouting($classes);
-		}
+            $e = explode('.', $file->getFileName());
+            if (empty($e) || count($e) < 2) {
+                continue;
+            }
 
+            $path = $file->getRealPath();
+            $className = $e[0];
+            $extension = $e[1];
 
-		/********************************************************************************
-		 * PSR-0 Autoloader
-		 *
-		 * Do not use if you are using Composer to autoload dependencies.
-		 *******************************************************************************/
+            if ($extension != "php") {
+                continue;
+            }
 
-		/**
-		 * Slim PSR-0 autoloader from Slim Framework
-		 */
-		public static function autoload($className)
-		{
-			$thisClass = str_replace(__NAMESPACE__ . '\\', '', __CLASS__);
+            // check namespaces
+            if (!empty($namespace)) {
+                $className = $namespace . "\\$className";
+            }
 
-			$baseDir = __DIR__;
-
-			if(substr($baseDir, -strlen($thisClass)) === $thisClass)
-			{
-				$baseDir = substr($baseDir, 0, -strlen($thisClass));
-			}
-
-			$className = ltrim($className, '\\');
-			$fileName  = $baseDir;
-			$namespace = '';
-			if($lastNsPos = strripos($className, '\\'))
-			{
-				$namespace = substr($className, 0, $lastNsPos);
-				$namespace = substr($namespace, (strpos($namespace, __NAMESPACE__) + strlen(__NAMESPACE__)));
-				$className = substr($className, $lastNsPos + 1);
-				$fileName .= __NAMESPACE__ . str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
-			}
-			$fileName .= DIRECTORY_SEPARATOR . $className . '.php';
-
-			if(file_exists($fileName))
-			{
-				require_once $fileName;
-			}
-		}
-
-		/**
-		 * Register the PSR-0 autoloader
-		 */
-		public static function registerAutoloader()
-		{
-			spl_autoload_register(__NAMESPACE__ . "\\Spore::autoload");
-		}
-
-		public function addService($pathOrFile)
-		{
-			$services = $this->config("services");
-			if(!$services)
-				$services = array();
-
-			if(is_array($pathOrFile))
-			{
-				$services = array_merge($services, $pathOrFile);
-			}
-			else
-			{
-				array_push($services, $pathOrFile);
-			}
+            require_once $path;
+            $this->addService(new $className);
+        }
 
 
-			$this->config("services", $services);
-			$this->updateAutoRoutes();
-		}
+    }
 
-		public function addServicesDirectory($path, $namespace="")
-		{
-			$validPath = realpath($path);
-			if(!$validPath)
-				throw new Exception(sprintf("Path to services directory is invalid: \"%s\"", $path));
+    /**
+     * Set the authorization callback function
+     *
+     * @param $authorizationCallback
+     *
+     * @return mixed
+     */
+    public function authCallback($authorizationCallback = null)
+    {
+        if (is_callable($authorizationCallback)) {
+            $this->controller->setAuthCallback($authorizationCallback);
+            return;
+        }
 
-			$files       = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($validPath),
-												RecursiveIteratorIterator::LEAVES_ONLY);
-			$classes     = array();
+        return $this->controller->getAuthCallback();
+    }
 
-			foreach($files as $file)
-			{
-				if(empty($file))
-					continue;
+    /**
+     * Define or get the authorization failed handler
+     *
+     * @param null $argument
+     */
+    public function authFailed($argument = null)
+    {
+        if (is_callable($argument)) {
+            //Register error handler
+            $this->authFailedHandler = $argument;
+        } else {
+            //Invoke error handler
+            $this->response->status(Status::UNAUTHORIZED);
+            $this->response->body('');
+            $this->response->write($this->callAuthFailedHandler($argument));
+            $this->stop();
+        }
+    }
 
-				$e = explode('.', $file->getFileName());
-				if(empty($e) || count($e) < 2)
-					continue;
+    /**
+     * @param $argument
+     *
+     * @return string
+     */
+    private function callAuthFailedHandler($argument)
+    {
+        ob_start();
+        if (is_callable($this->authFailedHandler)) {
+            call_user_func_array($this->authFailedHandler, array($argument));
+        } else {
+            call_user_func_array(array($this, 'authFailedHandler'), array($argument));
+        }
 
-				$path      = $file->getRealPath();
-				$className = $e[0];
-				$extension = $e[1];
+        return ob_get_clean();
+    }
 
-				if($extension != "php")
-					continue;
+    /**
+     * Get the default authorization callback function
+     *
+     * @return bool
+     */
+    public function defaultAuthCallback()
+    {
+        return true;
+    }
 
-				// check namespaces
-				if(!empty($namespace))
-					$className = $namespace . "\\$className";
+    /**
+     * Get the default error callback function
+     *
+     * @param \Exception $e
+     */
+    public function errorHandler(Exception $e)
+    {
+        $this->contentType($this->config("content-type"));
+        $data = Serializer::getSerializedData(
+            $this,
+            array(
+                "error" => array(
+                    "message" => $e->getMessage(),
+                    "code" => $e->getCode(),
+                    "file" => $e->getFile(),
+                    "line" => $e->getLine(),
+                )
+            )
+        );
 
-				require_once $path;
-				$this->addService(new $className);
-			}
+        $this->halt(Status::INTERNAL_SERVER_ERROR, $data);
+    }
 
+    /**
+     *    Get the not found callback function
+     */
+    public function notFoundHandler()
+    {
+        $this->contentType($this->config("content-type"));
+        $data = Serializer::getSerializedData(
+            $this,
+            array(
+                "error" => array(
+                    "message" => "'" . $this->request()->getResourceUri(
+                    ) . "' could not be resolved to a valid API call",
+                    "req" => $this->request()->getIp()
+                )
+            )
+        );
 
-		}
+        $this->halt(Status::NOT_FOUND, $data);
+    }
 
-		/**
-		 * Set the authorization callback function
-		 *
-		 * @param $authorizationCallback
-		 *
-		 * @return mixed
-		 */
-		public function authCallback($authorizationCallback = null)
-		{
-			if(is_callable($authorizationCallback)) {
-				$this->controller->setAuthCallback($authorizationCallback);
-				return;
-			}
+    /**
+     *    Get the default authorization failed callback function
+     */
+    public function authFailedHandler()
+    {
+        $this->contentType($this->config("content-type"));
+        $data = Serializer::getSerializedData(
+            $this,
+            array(
+                "message" => "You are not authorized to execute this function"
+            )
+        );
 
-			return $this->controller->getAuthCallback();
-		}
-
-		/**
-		 * Define or get the authorization failed handler
-		 *
-		 * @param null $argument
-		 */
-		public function authFailed($argument = null)
-		{
-			if (is_callable($argument)) {
-				//Register error handler
-				$this->authFailedHandler = $argument;
-			} else {
-				//Invoke error handler
-				$this->response->status(Status::UNAUTHORIZED);
-				$this->response->body('');
-				$this->response->write($this->callAuthFailedHandler($argument));
-				$this->stop();
-			}
-		}
-
-		/**
-		 * @param $argument
-		 *
-		 * @return string
-		 */
-		private function callAuthFailedHandler($argument)
-		{
-			ob_start();
-			if ( is_callable($this->authFailedHandler) ) {
-				call_user_func_array($this->authFailedHandler, array($argument));
-			} else {
-				call_user_func_array(array($this, 'authFailedHandler'), array($argument));
-			}
-
-			return ob_get_clean();
-		}
-
-		/**
-		 * Get the default authorization callback function
-		 *
-		 * @return bool
-		 */
-		public function defaultAuthCallback()
-		{
-			return true;
-		}
-
-		/**
-		 * Get the default error callback function
-		 *
-		 * @param \Exception $e
-		 */
-		public function errorHandler(Exception $e)
-		{
-			$this->contentType($this->config("content-type"));
-			$data = Serializer::getSerializedData($this, array(
-															  "error" => array(
-																  "message" => $e->getMessage(),
-																  "code"    => $e->getCode(),
-																  "file"    => $e->getFile(),
-																  "line"    => $e->getLine(),
-															  )
-														 ));
-
-			$this->halt(Status::INTERNAL_SERVER_ERROR, $data);
-		}
-
-		/**
-		 *	Get the not found callback function
-		 */
-		public function notFoundHandler()
-		{
-			$this->contentType($this->config("content-type"));
-			$data = Serializer::getSerializedData($this, array(
-															  "error" => array(
-																  "message" => "'" . $this->request()->getResourceUri() . "' could not be resolved to a valid API call",
-																  "req"     => $this->request()->getIp()
-															  )
-														 ));
-
-			$this->halt(Status::NOT_FOUND, $data);
-		}
-
-		/**
-		 *	Get the default authorization failed callback function
-		 */
-		public function authFailedHandler()
-		{
-			$this->contentType($this->config("content-type"));
-			$data = Serializer::getSerializedData($this, array(
-															  "message" => "You are not authorized to execute this function"
-														 ));
-
-			$this->halt(Status::UNAUTHORIZED, $data);
-		}
-	}
+        $this->halt(Status::UNAUTHORIZED, $data);
+    }
+}
