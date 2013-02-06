@@ -2,6 +2,7 @@
 namespace Spore\ReST\Data\Deserializer;
 
 use SimpleXMLElement;
+use Exception;
 use Spore\ReST\Data\Base;
 use stdClass;
 

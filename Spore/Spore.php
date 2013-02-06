@@ -69,6 +69,7 @@ class Spore extends Slim
             "pass-params" => true,
             "templates.path" => realpath(dirname(__DIR__) . "/examples/templates"),
             "include-examples" => true,
+
             "deserializers" => array(
                 "application/json" => "\\Spore\\ReST\\Data\\Deserializer\\JSONDeserializer",
                 "application/xml" => "\\Spore\\ReST\\Data\\Deserializer\\XMLDeserializer",
@@ -81,7 +82,10 @@ class Spore extends Slim
                 "application/json" => "\\Spore\\ReST\\Data\\Serializer\\JSONSerializer",
                 "application/xml" => "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
                 "text/xml" => "\\Spore\\ReST\\Data\\Serializer\\XMLSerializer",
-            )
+            ),
+            
+            "xml-top-node" => "data",
+            "xml-node" => "element",
         );
 
         return array_merge($default, $extended);

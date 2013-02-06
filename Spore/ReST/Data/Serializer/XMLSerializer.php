@@ -12,7 +12,9 @@ class XMLSerializer extends Base
 {
     public static function parse($data)
     {
-        return self::generateValidXmlFromArray((array) $data, "data", "element");
+        $topNodeName = self::getApp()->config("xml-top-node");
+        $nodeName = self::getApp()->config("xml-node");
+        return self::generateValidXmlFromArray((array) $data, $topNodeName, $nodeName);
     }
 
     private static function generateValidXmlFromObj(stdClass $obj, $node_block = 'nodes', $node_name = 'node')

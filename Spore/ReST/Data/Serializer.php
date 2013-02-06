@@ -75,6 +75,9 @@ class Serializer
             $serializer = self::$contentTypes[$defaultContentType];
         }
 
+        // Assign a reference to the Spore instance
+        call_user_func(array($serializer, "setApp"), $app);
+
         if (empty($serializer) || !class_exists($serializer)) {
             throw new Exception("Cannot find serializer for content type \"" . $contentType . "\"");
         }
