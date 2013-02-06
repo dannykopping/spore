@@ -10,9 +10,12 @@ use stdClass;
  */
 class XMLSerializer extends Base
 {
+    public static $mainNodeName = 'data';
+	public static $listNodeName = 'element';
+
     public static function parse($data)
     {
-        return self::generateValidXmlFromArray((array) $data, "data", "element");
+        return self::generateValidXmlFromArray((array) $data, XMLSerializer::$mainNodeName, XMLSerializer::$listNodeName);
     }
 
     private static function generateValidXmlFromObj(stdClass $obj, $node_block = 'nodes', $node_name = 'node')
