@@ -58,6 +58,13 @@ class Deserializer extends DeserializerMiddleware
             return $result;
         }
 
-        throw new Exception("An error occurred while attempting to deserialize data");
+        $res = $this->app->response();
+        
+        $res->status(\Spore\ReST\Model\Status::BAD_REQUEST);
+        $res->body(json_encode(array(
+                            "error" => array(
+                                "message" => "An error occurred while attempting to deserialize data"
+                            )
+                        )));
     }
 }
