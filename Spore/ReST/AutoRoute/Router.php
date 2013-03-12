@@ -72,6 +72,10 @@ class Router extends \Slim\Router
             return false;
         }
 
+        if ($resp->status != \Spore\ReST\Model\Status::OK) {
+            return true;
+        }
+
         $passParams = $app->config("pass-params") == true;
 
         if ($passParams) {
@@ -198,6 +202,7 @@ class Router extends \Slim\Router
 
         $resp->setResponse($response);
         $resp->headers = $response->headers();
+        $resp->status = $response->status(); 
 
         return $resp;
     }
