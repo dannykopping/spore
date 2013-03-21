@@ -53,11 +53,17 @@ class Deserializer extends DeserializerMiddleware
             throw new Exception("Cannot find deserializer for content type \"" . $contentType . "\"");
         }
 
-        $result = call_user_func(array($deserializer, "parse"), $data);
-        if (!empty($result)) {
-            return $result;
-        }
+        $message = "An error occurred while attempting to deserialize data";
 
+        try {
+            $result = call_user_func(array($deserializer, "parse"), $data);
+            if (!empty($result)) {
+                return $result;
+            }
+        } catch (Exception $e) {
+            $message = $e->getMessage();
+        }
+    
         $resp = $this->app->response();
 
         $resp->status(\Spore\ReST\Model\Status::BAD_REQUEST);
@@ -65,9 +71,10 @@ class Deserializer extends DeserializerMiddleware
             $this->app, 
             array(
                 "error" => array(
-                    "message" => "An error occurred while attempting to deserialize data")
+                    "message" => $message)
                 )
             )
         );
+        
     }
 }
