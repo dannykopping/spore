@@ -41,6 +41,7 @@ class DeserializerMiddleware extends Middleware
         if (isset($env['CONTENT_TYPE'])) {
             $env['slim.input_original'] = $env['slim.input'];
             $env['slim.input'] = $this->parse($env['slim.input'], $env['CONTENT_TYPE']);
+            $env['slim.input'] = $env['slim.input'] == null ? $env['slim.input_original'] : $env['slim.input'];
         }
 
         return $this->next->call();
