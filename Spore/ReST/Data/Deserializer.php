@@ -36,13 +36,16 @@ class Deserializer extends DeserializerMiddleware
      */
     protected function parse($data, $contentType)
     {
-        $this->contentTypes = $this->getApplication()->config("deserializers");
+        $app = $this->getApplication();
+        $env = $app->environment();
+
+        $this->contentTypes = $app->config("deserializers");
 
         if (empty($data)) {
             return $data;
         }
 
-        $defaultContentType = $this->getApplication()->config("content-type");
+        $defaultContentType = $app->config("content-type");
         $deserializer = isset($this->contentTypes[$contentType]) ? $this->contentTypes[$contentType] : null;
 
         if (empty($deserializer) && empty($contentType)) {
@@ -64,17 +67,21 @@ class Deserializer extends DeserializerMiddleware
             $message = $e->getMessage();
         }
     
-        $resp = $this->app->response();
+        $resp = $app->response();
 
-        $resp->status(\Spore\ReST\Model\Status::BAD_REQUEST);
-        $resp->body(Serializer::getSerializedData(
-            $this->app, 
-            array(
-                "error" => array(
-                    "message" => $message)
+        if (Serializer::isValidContentType($app)) {
+            $resp->status($app->config('errors.parser-error'));
+            $resp->body(Serializer::getSerializedData(
+                $this->app, 
+                array(
+                    "error" => array(
+                        "message" => $message)
+                    )
                 )
-            )
-        );
-        
+            );
+        } else {
+            $resp->status($app->config("errors.invalid-accept-type"));
+            $resp->body("Cannot find serializer for content type \"" . $env['ACCEPT'] . "\"");
+        }
     }
 }
