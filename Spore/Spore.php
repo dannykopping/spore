@@ -86,6 +86,9 @@ class Spore extends Slim
             
             "xml-top-node" => "data",
             "xml-node" => "element",
+
+            "errors.parser-error" => \Spore\ReST\Model\Status::BAD_REQUEST,
+            "errors.invalid-accept-type" => \Spore\ReST\Model\Status::NOT_ACCEPTABLE,
         );
 
         return array_merge($default, $extended);
