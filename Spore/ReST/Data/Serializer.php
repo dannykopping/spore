@@ -125,4 +125,32 @@ class Serializer
 
         return $data;
     }
+
+    /**
+     * Determines if the content type provided in "Accept" header is valid.
+     *
+     * @param \Slim\Slim $app
+     *
+     * @return bool
+     */
+    public static function isValidContentType(Slim $app) {
+        self::$contentTypes = $app->config("serializers");
+
+        $env = $app->environment();
+        $acceptableContentTypes = explode(";", $env["ACCEPT"]);
+
+        // Request did not specify "Accept" header, therefore it is 
+        // valid since default content-type will be returned.
+        if ($acceptableContentTypes[0] == "*/*") {
+            return true;
+        }
+
+        foreach ($acceptableContentTypes as $contentType) {
+            if (isset(self::$contentTypes[$contentType]) && class_exists(self::$contentTypes[$contentType])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
