@@ -18,9 +18,6 @@
         "dannykopping/slim": "dev-develop",
         "dannykopping/docblock": "dev-master"
     },
-    "replace": {
-        "slim/slim": "*"
-    },
     "autoload": {
         "psr-0": {
             "Spore": "."
