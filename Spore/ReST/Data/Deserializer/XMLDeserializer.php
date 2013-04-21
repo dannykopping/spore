@@ -70,7 +70,7 @@ class XMLDeserializer extends Base
     private static function elementToObject($element)
     {
         if (is_scalar($element)) {
-            return is_numeric((string) $element) ? (int) $element : (string) $element;
+            return (string) $element;
         } else {
             if (is_a($element, "SimpleXMLElement")) {
                 return self::xmlToObject($element);
