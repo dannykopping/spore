@@ -69,7 +69,7 @@ class XMLDeserializer extends Base
 
     private static function elementToObject($element)
     {
-        if (is_scalar($element)) {
+        if (empty($element) || is_scalar($element)) {
             return (string) $element;
         } else {
             if (is_a($element, "SimpleXMLElement")) {
