@@ -86,6 +86,9 @@ class Spore extends Slim
             
             "xml-top-node" => "data",
             "xml-node" => "element",
+
+            "errors.parser-error" => \Spore\ReST\Model\Status::BAD_REQUEST,
+            "errors.invalid-accept-type" => \Spore\ReST\Model\Status::NOT_ACCEPTABLE,
         );
 
         return array_merge($default, $extended);
@@ -293,20 +296,26 @@ class Spore extends Slim
      */
     public function errorHandler(Exception $e)
     {
-        $this->contentType($this->config("content-type"));
-        $data = Serializer::getSerializedData(
-            $this,
-            array(
-                "error" => array(
-                    "message" => $e->getMessage(),
-                    "code" => $e->getCode(),
-                    "file" => $e->getFile(),
-                    "line" => $e->getLine(),
-                )
-            )
-        );
+        if (Serializer::isValidContentType($this)) {
+            $this->contentType($this->config("content-type"));
 
-        $this->halt(Status::INTERNAL_SERVER_ERROR, $data);
+            $data = Serializer::getSerializedData(
+                $this,
+                array(
+                    "error" => array(
+                        "message" => $e->getMessage(),
+                        "code" => $e->getCode(),
+                        "file" => $e->getFile(),
+                        "line" => $e->getLine(),
+                    )
+                )
+            );
+
+            $this->halt(Status::INTERNAL_SERVER_ERROR, $data);
+        } else {
+            $env = $this->environment();
+            $this->halt($this->config("errors.invalid-accept-type"), "Cannot find serializer for content type \"" . $env['ACCEPT'] . "\"");
+        }
     }
 
     /**
@@ -314,19 +323,25 @@ class Spore extends Slim
      */
     public function notFoundHandler()
     {
-        $this->contentType($this->config("content-type"));
-        $data = Serializer::getSerializedData(
-            $this,
-            array(
-                "error" => array(
-                    "message" => "'" . $this->request()->getResourceUri(
-                    ) . "' could not be resolved to a valid API call",
-                    "req" => $this->request()->getIp()
-                )
-            )
-        );
+        if (Serializer::isValidContentType($this)) {
+            $this->contentType($this->config("content-type"));
 
-        $this->halt(Status::NOT_FOUND, $data);
+            $data = Serializer::getSerializedData(
+                $this,
+                array(
+                    "error" => array(
+                        "message" => "'" . $this->request()->getResourceUri(
+                        ) . "' could not be resolved to a valid API call",
+                        "req" => $this->request()->getIp()
+                    )
+                )
+            );
+
+            $this->halt(Status::NOT_FOUND, $data);
+        } else {
+            $env = $this->environment();
+            $this->halt($this->config("errors.invalid-accept-type"), "Cannot find serializer for content type \"" . $env['ACCEPT'] . "\"");
+        }
     }
 
     /**
@@ -334,15 +349,21 @@ class Spore extends Slim
      */
     public function authFailedHandler()
     {
-        $this->contentType($this->config("content-type"));
-        $data = Serializer::getSerializedData(
-            $this,
-            array(
-                "message" => "You are not authorized to execute this function"
-            )
-        );
+        if (Serializer::isValidContentType($this)) {
+            $this->contentType($this->config("content-type"));
 
-        $this->halt(Status::UNAUTHORIZED, $data);
+            $data = Serializer::getSerializedData(
+                $this,
+                array(
+                    "message" => "You are not authorized to execute this function"
+                )
+            );
+
+            $this->halt(Status::UNAUTHORIZED, $data);
+        } else {
+            $env = $this->environment();
+            $this->halt($this->config("errors.invalid-accept-type"), "Cannot find serializer for content type \"" . $env['ACCEPT'] . "\"");
+        }
     }
 
     public function run()

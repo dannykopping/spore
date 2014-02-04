@@ -75,12 +75,12 @@ class Serializer
             $serializer = self::$contentTypes[$defaultContentType];
         }
 
-        // Assign a reference to the Spore instance
-        call_user_func(array($serializer, "setApp"), $app);
-
         if (empty($serializer) || !class_exists($serializer)) {
             throw new Exception("Cannot find serializer for content type \"" . $contentType . "\"");
         }
+
+        // Assign a reference to the Spore instance
+        call_user_func(array($serializer, "setApp"), $app);
 
         $result = call_user_func(array($serializer, "parse"), $data);
         if (!empty($result)) {
@@ -124,5 +124,33 @@ class Serializer
         $data = self::serialize($app, $data, $contentType);
 
         return $data;
+    }
+
+    /**
+     * Determines if the content type provided in "Accept" header is valid.
+     *
+     * @param \Slim\Slim $app
+     *
+     * @return bool
+     */
+    public static function isValidContentType(Slim $app) {
+        self::$contentTypes = $app->config("serializers");
+
+        $env = $app->environment();
+        $acceptableContentTypes = explode(";", $env["ACCEPT"]);
+
+        // Request did not specify "Accept" header, therefore it is 
+        // valid since default content-type will be returned.
+        if ($acceptableContentTypes[0] == "*/*") {
+            return true;
+        }
+
+        foreach ($acceptableContentTypes as $contentType) {
+            if (isset(self::$contentTypes[$contentType]) && class_exists(self::$contentTypes[$contentType])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

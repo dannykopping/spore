@@ -36,13 +36,16 @@ class Deserializer extends DeserializerMiddleware
      */
     protected function parse($data, $contentType)
     {
-        $this->contentTypes = $this->getApplication()->config("deserializers");
+        $app = $this->getApplication();
+        $env = $app->environment();
+
+        $this->contentTypes = $app->config("deserializers");
 
         if (empty($data)) {
             return $data;
         }
 
-        $defaultContentType = $this->getApplication()->config("content-type");
+        $defaultContentType = $app->config("content-type");
         $deserializer = isset($this->contentTypes[$contentType]) ? $this->contentTypes[$contentType] : null;
 
         if (empty($deserializer) && empty($contentType)) {
@@ -53,11 +56,32 @@ class Deserializer extends DeserializerMiddleware
             throw new Exception("Cannot find deserializer for content type \"" . $contentType . "\"");
         }
 
-        $result = call_user_func(array($deserializer, "parse"), $data);
-        if (!empty($result)) {
-            return $result;
-        }
+        $message = "An error occurred while attempting to deserialize data";
 
-        throw new Exception("An error occurred while attempting to deserialize data");
+        try {
+            $result = call_user_func(array($deserializer, "parse"), $data);
+            if (!empty($result)) {
+                return $result;
+            }
+        } catch (Exception $e) {
+            $message = $e->getMessage();
+        }
+    
+        $resp = $app->response();
+
+        if (Serializer::isValidContentType($app)) {
+            $resp->status($app->config('errors.parser-error'));
+            $resp->body(Serializer::getSerializedData(
+                $this->app, 
+                array(
+                    "error" => array(
+                        "message" => $message)
+                    )
+                )
+            );
+        } else {
+            $resp->status($app->config("errors.invalid-accept-type"));
+            $resp->body("Cannot find serializer for content type \"" . $env['ACCEPT'] . "\"");
+        }
     }
 }

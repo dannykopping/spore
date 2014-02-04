@@ -49,6 +49,7 @@ class Router extends \Slim\Router
     public function dispatch(\Slim\Route $route)
     {
         $app = $this->getApp();
+        $env = $app->environment();
         $params = $route->getParams();
         $callable = $route->getCallable();
 
@@ -70,6 +71,10 @@ class Router extends \Slim\Router
 
         if (!is_callable($callable)) {
             return false;
+        }
+
+        if ($resp->status != \Spore\ReST\Model\Status::OK) {
+            return true;
         }
 
         $passParams = $app->config("pass-params") == true;
@@ -100,11 +105,21 @@ class Router extends \Slim\Router
                 return true;
             }
 
-            if ($autoroute && $autoroute->getTemplate()) {
-                $output = $this->getTemplateOutput($autoroute, $app, $result);
-            }
-            else                                        {
-                $output = Serializer::getSerializedData($app, $result);
+            if (Serializer::isValidContentType($app)) {
+                if ($autoroute && $autoroute->getTemplate()) {
+                    $output = $this->getTemplateOutput($autoroute, $app, $result);
+                }
+                else {
+                    $output = Serializer::getSerializedData($app, $result);
+                }
+            } else {
+                // set the HTTP status
+                $app->status($app->config('errors.invalid-accept-type'));
+
+                // set the response body
+                $app->response()->body("Cannot find serializer for content type \"" . $env['ACCEPT'] . "\"");
+
+                return true;
             }
 
             if (empty($output)) {
@@ -116,7 +131,6 @@ class Router extends \Slim\Router
 
         // return gzip-encoded data if gzip is enabled
         $gzipEnabled = $app->config("gzip");
-        $env = $app->environment();
         if (substr_count($env["ACCEPT_ENCODING"], "gzip") && extension_loaded("zlib") && $gzipEnabled) {
             $app->response()->header("Content-Encoding", "gzip");
             $app->response()->header("Vary", "Accept-Encoding");
@@ -198,6 +212,7 @@ class Router extends \Slim\Router
 
         $resp->setResponse($response);
         $resp->headers = $response->headers();
+        $resp->status = $response->status(); 
 
         return $resp;
     }
