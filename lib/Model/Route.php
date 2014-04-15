@@ -29,6 +29,8 @@ class Route
         foreach ($annotations as $annotation) {
             $this->addAnnotation($annotation);
         }
+
+        $this->setCallback($callback);
     }
 
     /**

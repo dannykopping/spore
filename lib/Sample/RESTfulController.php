@@ -15,6 +15,7 @@ class RESTfulController
     }
 
     /**
+     * @uri
      * @return string
      */
     public function ignoreMe()

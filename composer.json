@@ -1,6 +1,6 @@
 {
     "require": {
-        "dannykopping/docblock": "dev-master"
+        "dannykopping/docblock": "~0.5.1"
     },
     "require-dev": {
         "pimple/pimple": "v2.0.0",

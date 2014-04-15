@@ -1,9 +1,7 @@
 <?php
 namespace Spore;
 
-use Composer\Autoload\ClassLoader;
 use Spore\Service\RouteInspector;
-use Spore\Service\TargetMapAnalyser;
 
 /**
  * @author Danny Kopping
@@ -11,29 +9,18 @@ use Spore\Service\TargetMapAnalyser;
 class Spore
 {
     /**
-     * @var ClassLoader
-     */
-    protected $classLoader;
-
-    /**
      * @var array
      */
-    protected $namespaceTargets;
-
-    /**
-     * @var array
-     */
-    protected $targetMap;
+    protected $targets;
 
     /**
      * @var Container
      */
     protected $container;
 
-    public function __construct(ClassLoader $classLoader, array $namespaceTargets = array())
+    public function __construct(array $targets = array())
     {
-        $this->setClassLoader($classLoader);
-        $this->setNamespaceTargets($namespaceTargets);
+        $this->setTargets($targets);
 
         $this->setupContainer();
     }
@@ -49,28 +36,7 @@ class Spore
 
     public function initialise()
     {
-        $this->analyseTargets();
         $this->inspectRoutes();
-    }
-
-    /**
-     * Analyse the Composer ClassLoader and find classes within the given namespace targets
-     * to target for routing
-     */
-    protected function analyseTargets()
-    {
-        $this->targetMap = array();
-
-        /**
-         * @var $analyser TargetMapAnalyser
-         */
-        $analyser = $this->container[Container::TARGET_MAP_ANALYSER];
-        $analyser->setClassLoader($this->getClassLoader());
-        $analyser->setNamespaceTargets($this->getNamespaceTargets());
-
-        $this->targetMap = $analyser->run();
-
-        return $this->targetMap;
     }
 
     /**
@@ -82,13 +48,9 @@ class Spore
          * @var $routeInspector RouteInspector
          */
         $routeInspector = $this->container[Container::ROUTE_INSPECTOR];
-        $routeInspector->setTargetMap($this->getTargetMap());
+        $routeInspector->setTargets($this->getTargets());
 
-        $routeInspector->run();
-
-
-
-
+        $routeInspector->run($this->getContainer());
 
         // TODO: Implement route caching
         // http://docs.doctrine-project.org/en/2.0.x/reference/caching.html
@@ -103,60 +65,34 @@ class Spore
     }
 
     /**
-     * @param ClassLoader $classLoader
+     * @param $target
      */
-    public function setClassLoader($classLoader)
+    public function addTarget($target)
     {
-        $this->classLoader = $classLoader;
-    }
-
-    /**
-     * @return ClassLoader
-     */
-    public function getClassLoader()
-    {
-        return $this->classLoader;
-    }
-
-    /**
-     * @param array $namespaceTargets
-     */
-    public function setNamespaceTargets($namespaceTargets)
-    {
-        // strip leading slashes
-        if(count($namespaceTargets)) {
-            foreach($namespaceTargets as &$namespaceTarget) {
-                $namespaceTarget = trim($namespaceTarget);
-                if(substr($namespaceTarget, 0, 1) == '\\') {
-                    $namespaceTarget = substr($namespaceTarget, 1);
-                }
-            }
+        if(empty($this->targets)) {
+            $this->targets = [];
         }
 
-        $this->namespaceTargets = $namespaceTargets;
+        if(array_search($target, $this->targets, true)) {
+            return;
+        }
+
+        $this->targets[] = $target;
+    }
+
+    /**
+     * @param array $targets
+     */
+    public function setTargets($targets)
+    {
+        $this->targets = $targets;
     }
 
     /**
      * @return array
      */
-    public function getNamespaceTargets()
+    public function getTargets()
     {
-        return $this->namespaceTargets;
-    }
-
-    /**
-     * @param array $targetMap
-     */
-    public function setTargetMap($targetMap)
-    {
-        $this->targetMap = $targetMap;
-    }
-
-    /**
-     * @return array
-     */
-    public function getTargetMap()
-    {
-        return $this->targetMap;
+        return $this->targets;
     }
 } 
