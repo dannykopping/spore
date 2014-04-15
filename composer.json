@@ -1,0 +1,14 @@
+{
+    "require": {
+        "dannykopping/docblock": "dev-master"
+    },
+    "require-dev": {
+        "pimple/pimple": "v2.0.0",
+        "doctrine/cache": "v1.3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Spore\\": "lib/"
+        }
+    }
+}
