@@ -2,7 +2,6 @@
 namespace Spore\Factory;
 
 use DocBlock\Element\AnnotationElement;
-use Exception;
 use Spore\Container;
 
 /**
@@ -25,10 +24,10 @@ class Annotation extends Base
         }
 
         if (substr($identifier, 0, 1) == '@') {
-            $identifier = substr($identifier, 1);
+            $identifier = strtolower(substr($identifier, 1));
         }
 
-        $classes = self::getAnnotationClasses();
+        $classes = array_change_key_case(self::getAnnotationClasses(), CASE_LOWER);
         if (!isset($classes[$identifier])) {
             return null;
         }

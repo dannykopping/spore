@@ -1,7 +1,8 @@
 <?php
 namespace Spore\Model;
 
-use DocBlock\Element\AnnotationElement;
+use Spore\Annotation\AbstractAnnotation;
+use Spore\Container;
 
 /**
  * @author Danny Kopping
@@ -9,16 +10,21 @@ use DocBlock\Element\AnnotationElement;
 class Route
 {
     /**
-     * @var AnnotationElement[]
+     * @var AbstractAnnotation[]
      */
     protected $annotations;
+
+    /**
+     * @var Container
+     */
+    protected $container;
 
     /**
      * @var callable
      */
     protected $callback;
 
-    public function __construct(callable $callback, array $annotations = array())
+    public function __construct(callable $callback, Container $container, array $annotations = array())
     {
         $this->annotations = [];
 
@@ -30,25 +36,26 @@ class Route
             $this->addAnnotation($annotation);
         }
 
+        $this->setContainer($container);
         $this->setCallback($callback);
     }
 
     /**
-     * @param AnnotationElement $annotation
+     * @param AbstractAnnotation $annotation
      */
-    public function addAnnotation(AnnotationElement $annotation)
+    public function addAnnotation(AbstractAnnotation $annotation)
     {
         if (empty($annotation)) {
             return;
         }
 
-        $this->annotations[$annotation->getName()] = $annotation;
+        $this->annotations[strtolower($annotation->getIdentifier())] = $annotation;
     }
 
     /**
      * @param $name
      *
-     * @return null|AnnotationElement
+     * @return null|AbstractAnnotation
      */
     public function getAnnotationByName($name)
     {
@@ -60,7 +67,7 @@ class Route
     }
 
     /**
-     * @return AnnotationElement[]
+     * @return AbstractAnnotation[]
      */
     public function getAnnotations()
     {
@@ -81,5 +88,39 @@ class Route
     public function getCallback()
     {
         return $this->callback;
+    }
+
+    /**
+     * @param \Spore\Container $container
+     */
+    public function setContainer($container)
+    {
+        $this->container = $container;
+    }
+
+    /**
+     * @return \Spore\Container
+     */
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
+    /**
+     * Execute the route, calling pre- and post-execution callbacks
+     *
+     * @return mixed
+     */
+    public function execute()
+    {
+        $container = $this->getContainer();
+        $before    = $container[Container::BEFORE_CALLBACK];
+        $after     = $container[Container::AFTER_CALLBACK];
+
+        call_user_func_array($before, [$this]);
+        $result = call_user_func($this->getCallback());
+        call_user_func_array($after, [$this, $result]);
+
+        return $result;
     }
 } 

@@ -1,6 +1,12 @@
 <?php
 namespace Spore\Sample;
 
+/**
+ * Class RESTfulController
+ *
+ * @package Spore\Sample
+ * @base    /sample
+ */
 class RESTfulController
 {
     /**

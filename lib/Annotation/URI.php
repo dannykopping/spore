@@ -1,7 +1,7 @@
 <?php
 namespace Spore\Annotation;
 
-class URI extends Base
+class URI extends AbstractAnnotation
 {
     public static function getIdentifier()
     {

@@ -5,6 +5,7 @@ use DocBlock\Parser;
 use Pimple;
 use ReflectionMethod;
 use Spore\Factory\Annotation;
+use Spore\Model\Route;
 use Spore\Service\RouteInspector;
 
 /**
@@ -16,6 +17,9 @@ class Container extends Pimple
     const ANNOTATION_FACTORY = 'annotation-factory';
     const ANNOTATION_CLASSES = 'annotation-classes';
     const ROUTE_INSPECTOR    = 'route-inspector';
+    const BEFORE_CALLBACK    = 'before-callback';
+    const CALLBACK_WRAPPER   = 'callback-wrapper';
+    const AFTER_CALLBACK     = 'after-callback';
 
     public function initialise()
     {
@@ -42,7 +46,8 @@ class Container extends Pimple
          */
         $this[self::ANNOTATION_CLASSES] = function () {
             return [
-                'URI' => '\\Spore\\Annotation\\URI'
+                'URI'  => '\\Spore\\Annotation\\URI',
+                'Base' => '\\Spore\\Annotation\\Base',
             ];
         };
 
@@ -51,6 +56,24 @@ class Container extends Pimple
          */
         $this[self::ROUTE_INSPECTOR] = function () {
             return new RouteInspector($this);
+        };
+
+        /**
+         * @return callable
+         */
+        $this[self::BEFORE_CALLBACK] = function () {
+            return function (Route $route) {
+                echo 'Before -> ' . $route->getAnnotationByName('uri');
+            };
+        };
+
+        /**
+         * @return callable
+         */
+        $this[self::AFTER_CALLBACK] = function () {
+            return function (Route $route, $result = null) {
+                echo 'After -> ' . $route->getAnnotationByName('uri').PHP_EOL.var_export($result, true);
+            };
         };
     }
 } 

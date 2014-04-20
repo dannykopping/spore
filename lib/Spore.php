@@ -50,10 +50,9 @@ class Spore
         $routeInspector = $this->container[Container::ROUTE_INSPECTOR];
         $routeInspector->setTargets($this->getTargets());
 
-        $routeInspector->run($this->getContainer());
+        $routes = $routeInspector->run($this->getContainer());
 
-        // TODO: Implement route caching
-        // http://docs.doctrine-project.org/en/2.0.x/reference/caching.html
+        return $routes;
     }
 
     /**
@@ -69,11 +68,11 @@ class Spore
      */
     public function addTarget($target)
     {
-        if(empty($this->targets)) {
+        if (empty($this->targets)) {
             $this->targets = [];
         }
 
-        if(array_search($target, $this->targets, true)) {
+        if (array_search($target, $this->targets, true)) {
             return;
         }
 

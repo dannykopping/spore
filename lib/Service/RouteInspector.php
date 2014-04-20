@@ -1,7 +1,7 @@
 <?php
 namespace Spore\Service;
 
-use DocBlock\Element\ClassElement;
+use DocBlock\Element\Base as BaseAnnotationElement;
 use DocBlock\Element\MethodElement;
 use DocBlock\Parser;
 use ReflectionMethod;
@@ -33,29 +33,19 @@ class RouteInspector extends Base
         }
 
         $routes = [];
-
         foreach ($routableMethods as $method) {
-            $class = $method->getClass();
+            $class    = $method->getClass();
             $instance = $class->getInstance();
+
+            // retrieve all recognised annotations from the resource-level (class) and action-level (method)
+            $routeAnnotations = $this->getRecognisedAnnotations([$class, $method]);
 
             /**
              * @var $methodReflector ReflectionMethod
              */
             $methodReflector = $method->getReflectionObject();
+            $route           = new Route($methodReflector->getClosure($instance), $this->getContainer(), $routeAnnotations);
 
-            $annotations = $method->getAnnotations();
-
-            $routeAnnotations = [];
-            foreach($annotations as $annotation) {
-                $annotation = $this->getAnnotationFactory()->createByElement($annotation);
-                if (empty($annotation)) {
-                    continue;
-                }
-
-                $routeAnnotations[] = $annotation;
-            }
-
-            $route = new Route($methodReflector->getClosure($instance), $annotations);
             $routes[] = $route;
         }
 
@@ -107,6 +97,43 @@ class RouteInspector extends Base
         }
 
         return $methodAnnotation->hasAnnotation(URI::getIdentifier());
+    }
+
+    /**
+     * Returns an array of annotations that have related class definitions
+     *
+     * @param BaseAnnotationElement[] $annotationContainers
+     *
+     * @return \Spore\Annotation\AbstractAnnotation[]
+     */
+    protected function getRecognisedAnnotations(array $annotationContainers)
+    {
+        if (!count($annotationContainers)) {
+            return [];
+        }
+
+        $recognised = [];
+        foreach ($annotationContainers as $annotationContainer) {
+            if (!$annotationContainer instanceof BaseAnnotationElement) {
+                continue;
+            }
+
+            $annotations = $annotationContainer->getAnnotations();
+            if (!count($annotations)) {
+                continue;
+            }
+
+            foreach ($annotations as $annotation) {
+                $annotation = $this->getAnnotationFactory()->createByElement($annotation);
+                if (empty($annotation)) {
+                    continue;
+                }
+
+                $recognised[] = $annotation;
+            }
+        }
+
+        return $recognised;
     }
 
     /**
