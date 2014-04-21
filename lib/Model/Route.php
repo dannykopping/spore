@@ -3,21 +3,19 @@ namespace Spore\Model;
 
 use Spore\Annotation\AbstractAnnotation;
 use Spore\Container;
+use Spore\Traits\ContainerAware;
 
 /**
  * @author Danny Kopping
  */
 class Route
 {
+    use ContainerAware;
+
     /**
      * @var AbstractAnnotation[]
      */
     protected $annotations;
-
-    /**
-     * @var Container
-     */
-    protected $container;
 
     /**
      * @var callable
@@ -88,22 +86,6 @@ class Route
     public function getCallback()
     {
         return $this->callback;
-    }
-
-    /**
-     * @param \Spore\Container $container
-     */
-    public function setContainer($container)
-    {
-        $this->container = $container;
-    }
-
-    /**
-     * @return \Spore\Container
-     */
-    public function getContainer()
-    {
-        return $this->container;
     }
 
     /**

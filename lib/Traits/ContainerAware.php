@@ -1,22 +1,14 @@
 <?php
-namespace Spore\Factory;
+namespace Spore\Traits;
 
 use Spore\Container;
 
-/**
- * @author Danny Kopping
- */
-abstract class Base
+trait ContainerAware
 {
     /**
      * @var Container
      */
     protected $container;
-
-    public function __construct(Container $container)
-    {
-        $this->setContainer($container);
-    }
 
     /**
      * @param \Spore\Container $container

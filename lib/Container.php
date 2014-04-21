@@ -4,22 +4,23 @@ namespace Spore;
 use DocBlock\Parser;
 use Pimple;
 use ReflectionMethod;
-use Spore\Factory\Annotation;
+use Spore\Factory\AnnotationFactory;
 use Spore\Model\Route;
-use Spore\Service\RouteInspector;
+use Spore\Service\RouteInspectorService;
 
 /**
  * @author Danny Kopping
  */
 class Container extends Pimple
 {
-    const DOCBLOCK_PARSER    = 'docblock-parser';
-    const ANNOTATION_FACTORY = 'annotation-factory';
-    const ANNOTATION_CLASSES = 'annotation-classes';
-    const ROUTE_INSPECTOR    = 'route-inspector';
-    const BEFORE_CALLBACK    = 'before-callback';
-    const CALLBACK_WRAPPER   = 'callback-wrapper';
-    const AFTER_CALLBACK     = 'after-callback';
+    const DOCBLOCK_PARSER          = 'docblock-parser';
+    const ANNOTATION_FACTORY       = 'annotation-factory';
+    const ANNOTATION_CLASSES       = 'annotation-classes';
+    const PREREQUISITE_ANNOTATIONS = 'prerequisite-annotations';
+    const ROUTE_INSPECTOR          = 'route-inspector';
+    const BEFORE_CALLBACK          = 'before-callback';
+    const CALLBACK_WRAPPER         = 'callback-wrapper';
+    const AFTER_CALLBACK           = 'after-callback';
 
     public function initialise()
     {
@@ -35,27 +36,29 @@ class Container extends Pimple
         };
 
         /**
-         * @return \Spore\Factory\Annotation
+         * @return \Spore\Factory\AnnotationFactory
          */
         $this[self::ANNOTATION_FACTORY] = function () {
-            return new Annotation($this);
+            return new AnnotationFactory($this);
+        };
+
+        $this[self::ANNOTATION_CLASSES] = function () {
+            return [
+                'uri'  => '\\Spore\\Annotation\\URI',
+                'base' => '\\Spore\\Annotation\\Base',
+            ];
         };
 
         /**
          * @return array
          */
-        $this[self::ANNOTATION_CLASSES] = function () {
-            return [
-                'URI'  => '\\Spore\\Annotation\\URI',
-                'Base' => '\\Spore\\Annotation\\Base',
-            ];
-        };
+        $this[self::PREREQUISITE_ANNOTATIONS] = ['uri'];
 
         /**
-         * @return RouteInspector
+         * @return RouteInspectorService
          */
         $this[self::ROUTE_INSPECTOR] = function () {
-            return new RouteInspector($this);
+            return new RouteInspectorService($this);
         };
 
         /**
@@ -72,7 +75,7 @@ class Container extends Pimple
          */
         $this[self::AFTER_CALLBACK] = function () {
             return function (Route $route, $result = null) {
-                echo 'After -> ' . $route->getAnnotationByName('uri').PHP_EOL.var_export($result, true);
+                echo 'After -> ' . $route->getAnnotationByName('uri') . PHP_EOL . var_export($result, true);
             };
         };
     }

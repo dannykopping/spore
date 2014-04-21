@@ -7,7 +7,7 @@ use Spore\Container;
 /**
  * @author Danny Kopping
  */
-class Annotation extends Base
+class AnnotationFactory extends AbstractFactory
 {
     /**
      * Create an annotation instance based on a given identifier

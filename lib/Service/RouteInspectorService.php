@@ -5,15 +5,14 @@ use DocBlock\Element\Base as BaseAnnotationElement;
 use DocBlock\Element\MethodElement;
 use DocBlock\Parser;
 use ReflectionMethod;
-use Spore\Annotation\URI;
 use Spore\Container;
-use Spore\Factory\Annotation;
+use Spore\Factory\AnnotationFactory;
 use Spore\Model\Route;
 
 /**
  * @author Danny Kopping
  */
-class RouteInspector extends Base
+class RouteInspectorService extends BaseService
 {
     /**
      * @var array
@@ -96,7 +95,9 @@ class RouteInspector extends Base
             return false;
         }
 
-        return $methodAnnotation->hasAnnotation(URI::getIdentifier());
+        $container = $this->getContainer();
+        $prerequisites = $container[Container::PREREQUISITE_ANNOTATIONS];
+        return $methodAnnotation->hasAnnotations($prerequisites);
     }
 
     /**
@@ -123,6 +124,8 @@ class RouteInspector extends Base
                 continue;
             }
 
+            // "recognised" annotations are those for whom a concrete definition exists
+            // and whose identifier (exposed by getIdenitifer()) matches the annotation's name
             foreach ($annotations as $annotation) {
                 $annotation = $this->getAnnotationFactory()->createByElement($annotation);
                 if (empty($annotation)) {
@@ -146,7 +149,7 @@ class RouteInspector extends Base
     }
 
     /**
-     * @return Annotation
+     * @return AnnotationFactory
      */
     protected function getAnnotationFactory()
     {

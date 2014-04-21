@@ -1,7 +1,8 @@
 <?php
 namespace Spore;
 
-use Spore\Service\RouteInspector;
+use Spore\Model\Route;
+use Spore\Service\RouteInspectorService;
 
 /**
  * @author Danny Kopping
@@ -34,18 +35,23 @@ class Spore
         $this->container->initialise();
     }
 
+    /**
+     * @return Route[]
+     */
     public function initialise()
     {
-        $this->inspectRoutes();
+        return $this->inspectRoutes();
     }
 
     /**
      * Inspect all namespace targets and return an array of Spore\Model\Route instances
+     *
+     * @return Route[]
      */
     protected function inspectRoutes()
     {
         /**
-         * @var $routeInspector RouteInspector
+         * @var $routeInspector RouteInspectorService
          */
         $routeInspector = $this->container[Container::ROUTE_INSPECTOR];
         $routeInspector->setTargets($this->getTargets());
@@ -58,7 +64,7 @@ class Spore
     /**
      * @return \Spore\Container
      */
-    public function getContainer()
+    public function &getContainer()
     {
         return $this->container;
     }
