@@ -2,6 +2,7 @@
 
 use Spore\Annotation\BaseAnnotation;
 use Spore\Annotation\URIAnnotation;
+use Spore\Container;
 use Spore\Spore;
 
 /**
@@ -44,9 +45,11 @@ class RouteDefinitionTest extends PHPUnit_Framework_TestCase
         $spore  = new Spore([new MyRouteWithBaseController()]);
         $routes = $spore->getRoutes();
 
+        $container = $spore->getContainer();
+
         $route = current($routes);
-        $this->assertArrayHasKey(BaseAnnotation::getIdentifier(), $route->getAnnotations());
-        $this->assertArrayHasKey(URIAnnotation::getIdentifier(), $route->getAnnotations());
+        $this->assertArrayHasKey($container[Container::BASE_ANNOTATION], $route->getAnnotations());
+        $this->assertArrayHasKey($container[Container::URI_ANNOTATION], $route->getAnnotations());
     }
 
     /**

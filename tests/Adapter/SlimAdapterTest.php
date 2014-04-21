@@ -31,10 +31,55 @@ class SlimAdapterTest extends BaseAdapterTest
         );
 
         // use environment values to execute a route, if one exists - otherwise fail!
-        $slim->notFound(function () {
-            $this->fail('Route cannot be found');
-        });
+        $slim->notFound(
+            function () {
+                $this->fail('Route cannot be found');
+            }
+        );
         $slim->call();
+
+        // PHPUnit, why you haz no pass method?
+        $this->assertTrue(true, 'Route was called successfully');
+    }
+
+    /**
+     * @dataProvider    adapteeDataProvider
+     */
+    public function testRouteCreationWithVerbs(Slim $slim)
+    {
+        $spore   = new Spore([new HelloSlimController()]);
+        $adapter = $spore->createAdapter(SlimAdapter::getName(), $slim);
+
+        $routes = $spore->getRoutes();
+        $route  = $routes['jollyWell'];
+
+        /**
+         * @var $route \Slim\Route
+         */
+        $route  = $adapter->createRoute($route);
+
+        $this->assertInstanceOf('\\Slim\\Route', $route);
+        $this->assertEquals([Verbs::GET, Verbs::POST, Verbs::PUT], $route->getHttpMethods());
+    }
+
+    /**
+     * @dataProvider    adapteeDataProvider
+     */
+    public function testRouteCreationWithName(Slim $slim)
+    {
+        $spore   = new Spore([new HelloSlimController()]);
+        $adapter = $spore->createAdapter(SlimAdapter::getName(), $slim);
+
+        $routes = $spore->getRoutes();
+        $route  = $routes['tallyHo'];
+
+        /**
+         * @var $route \Slim\Route
+         */
+        $route  = $adapter->createRoute($route);
+
+        $this->assertInstanceOf('\\Slim\\Route', $route);
+        $this->assertEquals('tally-ho!', $route->getName());
     }
 
     public function getAdapterName()
@@ -63,6 +108,22 @@ class HelloSlimController
      * @verbs   GET
      */
     public function hello()
+    {
+    }
+
+    /**
+     * @uri     /jolly-well
+     * @verbs   GET,POST,PUT
+     */
+    public function jollyWell()
+    {
+    }
+
+    /**
+     * @uri     /tally-ho
+     * @name    tally-ho!
+     */
+    public function tallyHo()
     {
     }
 }

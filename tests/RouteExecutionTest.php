@@ -38,11 +38,14 @@ class RouteExecutionTest extends PHPUnit_Framework_TestCase
         $container = $spore->getContainer();
 
         $executed = false;
-        $container->extend(Container::BEFORE_CALLBACK, function() use (&$executed) {
-            return function(Route $route) use (&$executed) {
-                $executed = true;
-            };
-        });
+        $container->extend(
+            Container::BEFORE_CALLBACK,
+            function () use (&$executed) {
+                return function (Route $route) use (&$executed) {
+                    $executed = true;
+                };
+            }
+        );
 
         $this->assertArrayHasKey('echoRoute', $routes);
         $route = $routes['echoRoute'];
@@ -62,11 +65,14 @@ class RouteExecutionTest extends PHPUnit_Framework_TestCase
         $container = $spore->getContainer();
 
         $passedResult = false;
-        $container->extend(Container::AFTER_CALLBACK, function() use (&$passedResult) {
-            return function(Route $route, $routeResult = null) use (&$passedResult) {
-                $passedResult = $routeResult;
-            };
-        });
+        $container->extend(
+            Container::AFTER_CALLBACK,
+            function () use (&$passedResult) {
+                return function (Route $route, $routeResult = null) use (&$passedResult) {
+                    $passedResult = $routeResult;
+                };
+            }
+        );
 
         $this->assertArrayHasKey('sayHello', $routes);
         $route = $routes['sayHello'];
@@ -81,12 +87,14 @@ class RouteExecutionTest extends PHPUnit_Framework_TestCase
      */
     public function testDefaultVerbs()
     {
-        $spore  = new Spore([new HelloWorldController()]);
+        $spore     = new Spore([new HelloWorldController()]);
+        $container = $spore->getContainer();
+
         $routes = $spore->getRoutes();
 
         $route = $routes['echoRoute'];
 
-        $this->assertEmpty($route->getAnnotationByName(VerbsAnnotation::getIdentifier()));
+        $this->assertEmpty($route->getAnnotationByName($container[Container::VERBS_ANNOTATION]));
         $this->assertEquals(Verbs::getAll(), $route->getVerbs());
     }
 
@@ -95,12 +103,14 @@ class RouteExecutionTest extends PHPUnit_Framework_TestCase
      */
     public function testSingeVerb()
     {
-        $spore  = new Spore([new HelloWorldController()]);
+        $spore     = new Spore([new HelloWorldController()]);
+        $container = $spore->getContainer();
+
         $routes = $spore->getRoutes();
 
         $route = $routes['singleVerb'];
 
-        $this->assertNotEmpty($route->getAnnotationByName(VerbsAnnotation::getIdentifier()));
+        $this->assertNotEmpty($route->getAnnotationByName($container[Container::VERBS_ANNOTATION]));
         $this->assertEquals([Verbs::GET], $route->getVerbs());
     }
 
@@ -109,12 +119,14 @@ class RouteExecutionTest extends PHPUnit_Framework_TestCase
      */
     public function testMultipleVerbs()
     {
-        $spore  = new Spore([new HelloWorldController()]);
+        $spore     = new Spore([new HelloWorldController()]);
+        $container = $spore->getContainer();
+
         $routes = $spore->getRoutes();
 
         $route = $routes['multipleVerbs'];
 
-        $this->assertNotEmpty($route->getAnnotationByName(VerbsAnnotation::getIdentifier()));
+        $this->assertNotEmpty($route->getAnnotationByName($container[Container::VERBS_ANNOTATION]));
         $this->assertEquals([Verbs::GET, Verbs::POST, Verbs::HEAD], $route->getVerbs());
     }
 }
@@ -147,7 +159,7 @@ class HelloWorldController
 
     /**
      * @uri         /single-verb
-     * @verb       GET,POST,HEAD
+     * @verb        GET,POST,HEAD
      */
     public function multipleVerbs()
     {

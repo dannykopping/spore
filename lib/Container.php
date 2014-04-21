@@ -18,6 +18,7 @@ class Container extends Pimple
     const URI_ANNOTATION   = 'uri-annotation';
     const VERB_ANNOTATION  = 'verb-annotation';
     const VERBS_ANNOTATION = 'verbs-annotation';
+    const NAME_ANNOTATION  = 'name-annotation';
 
     const DOCBLOCK_PARSER = 'docblock-parser';
     const ROUTE_INSPECTOR = 'route-inspector';
@@ -40,6 +41,7 @@ class Container extends Pimple
         $this[self::URI_ANNOTATION]   = 'uri';
         $this[self::VERB_ANNOTATION]  = 'verb';
         $this[self::VERBS_ANNOTATION] = 'verbs';
+        $this[self::NAME_ANNOTATION]  = 'name';
 
         /**
          * @return Parser
@@ -68,6 +70,7 @@ class Container extends Pimple
                 $this[self::URI_ANNOTATION]   => '\\Spore\\Annotation\\URIAnnotation',
                 $this[self::VERB_ANNOTATION]  => '\\Spore\\Annotation\\VerbsAnnotation',
                 $this[self::VERBS_ANNOTATION] => '\\Spore\\Annotation\\VerbsAnnotation',
+                $this[self::NAME_ANNOTATION] => '\\Spore\\Annotation\\NameAnnotation',
             ];
         };
 
