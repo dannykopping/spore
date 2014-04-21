@@ -1,8 +1,7 @@
 <?php
 
-use Spore\Annotation\Base;
-use Spore\Annotation\URI;
-use Spore\Model\Route;
+use Spore\Annotation\BaseAnnotation;
+use Spore\Annotation\URIAnnotation;
 use Spore\Spore;
 
 /**
@@ -18,7 +17,7 @@ class RouteDefinitionTest extends PHPUnit_Framework_TestCase
         $resource = new MyRouteWithBaseController();
 
         $spore = new Spore([$resource]);
-        $spore->initialise();
+        $spore->getRoutes();
 
         $this->assertContains($resource, $spore->getTargets());
     }
@@ -29,7 +28,7 @@ class RouteDefinitionTest extends PHPUnit_Framework_TestCase
     public function testRoutesCorrectness()
     {
         $spore  = new Spore([new MyRouteWithBaseController()]);
-        $routes = $spore->initialise();
+        $routes = $spore->getRoutes();
 
         $this->assertNotEmpty($routes);
 
@@ -43,11 +42,11 @@ class RouteDefinitionTest extends PHPUnit_Framework_TestCase
     public function testBaseRoute()
     {
         $spore  = new Spore([new MyRouteWithBaseController()]);
-        $routes = $spore->initialise();
+        $routes = $spore->getRoutes();
 
         $route = current($routes);
-        $this->assertArrayHasKey(Base::getIdentifier(), $route->getAnnotations());
-        $this->assertArrayHasKey(URI::getIdentifier(), $route->getAnnotations());
+        $this->assertArrayHasKey(BaseAnnotation::getIdentifier(), $route->getAnnotations());
+        $this->assertArrayHasKey(URIAnnotation::getIdentifier(), $route->getAnnotations());
     }
 
     /**
@@ -56,9 +55,27 @@ class RouteDefinitionTest extends PHPUnit_Framework_TestCase
     public function testUnroutableRoute()
     {
         $spore  = new Spore([new MyUnroutableRouteController()]);
-        $routes = $spore->initialise();
+        $routes = $spore->getRoutes();
 
         $this->assertEmpty($routes);
+    }
+
+    /**
+     * Test that a route's URI is returned correctly
+     */
+    public function testRouteURI()
+    {
+        $spore  = new Spore([new MyRouteWithBaseController()]);
+        $routes = $spore->getRoutes();
+        $route = current($routes);
+
+        $this->assertEquals('/resource/action', $route->getURI());
+
+        $spore  = new Spore([new MyBaselessRouteController()]);
+        $routes = $spore->getRoutes();
+        $route = current($routes);
+
+        $this->assertEquals('/regular', $route->getURI());
     }
 }
 
@@ -81,6 +98,16 @@ class MyUnroutableRouteController
      * @invalid     /unroutable
      */
     public function unroutableAction()
+    {
+    }
+}
+
+class MyBaselessRouteController
+{
+    /**
+     * @uri         /regular
+     */
+    public function regularAction()
     {
     }
 }

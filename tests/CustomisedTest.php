@@ -22,7 +22,7 @@ class CustomisedTest extends PHPUnit_Framework_TestCase
             return $annotations;
         });
 
-        $routes = $spore->initialise();
+        $routes = $spore->getRoutes();
         $this->assertNotEmpty($routes);
 
         $route = current($routes);
@@ -47,7 +47,7 @@ class CustomisedTest extends PHPUnit_Framework_TestCase
             return [];
         });
 
-        $routes = $spore->initialise();
+        $routes = $spore->getRoutes();
         $this->assertNotEmpty($routes);
     }
 }

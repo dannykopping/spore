@@ -4,6 +4,7 @@ namespace Spore;
 use DocBlock\Parser;
 use Pimple;
 use ReflectionMethod;
+use Spore\Factory\AdapterFactory;
 use Spore\Factory\AnnotationFactory;
 use Spore\Model\Route;
 use Spore\Service\RouteInspectorService;
@@ -13,14 +14,23 @@ use Spore\Service\RouteInspectorService;
  */
 class Container extends Pimple
 {
-    const DOCBLOCK_PARSER          = 'docblock-parser';
+    const DOCBLOCK_PARSER = 'docblock-parser';
+
     const ANNOTATION_FACTORY       = 'annotation-factory';
     const ANNOTATION_CLASSES       = 'annotation-classes';
     const PREREQUISITE_ANNOTATIONS = 'prerequisite-annotations';
-    const ROUTE_INSPECTOR          = 'route-inspector';
-    const BEFORE_CALLBACK          = 'before-callback';
-    const CALLBACK_WRAPPER         = 'callback-wrapper';
-    const AFTER_CALLBACK           = 'after-callback';
+
+    const BASE_ANNOTATION = 'base-annotation';
+    const URI_ANNOTATION  = 'uri-annotation';
+
+    const ROUTE_INSPECTOR = 'route-inspector';
+
+    const BEFORE_CALLBACK  = 'before-callback';
+    const CALLBACK_WRAPPER = 'callback-wrapper';
+    const AFTER_CALLBACK   = 'after-callback';
+
+    const ADAPTER_FACTORY = 'adapter-factory';
+    const ADAPTER_CLASSES = 'adapter-classes';
 
     public function initialise()
     {
@@ -42,10 +52,13 @@ class Container extends Pimple
             return new AnnotationFactory($this);
         };
 
+        /**
+         * @return array
+         */
         $this[self::ANNOTATION_CLASSES] = function () {
             return [
-                'uri'  => '\\Spore\\Annotation\\URI',
-                'base' => '\\Spore\\Annotation\\Base',
+                'uri'  => '\\Spore\\Annotation\\URIAnnotation',
+                'base' => '\\Spore\\Annotation\\BaseAnnotation',
             ];
         };
 
@@ -54,6 +67,20 @@ class Container extends Pimple
          */
         $this[self::PREREQUISITE_ANNOTATIONS] = function () {
             return ['uri'];
+        };
+
+        /**
+         * @return string
+         */
+        $this[self::BASE_ANNOTATION] = function () {
+            return 'base';
+        };
+
+        /**
+         * @return string
+         */
+        $this[self::URI_ANNOTATION] = function () {
+            return 'uri';
         };
 
         /**
@@ -88,6 +115,22 @@ class Container extends Pimple
             return function (Route $route, $result = null) {
                 return;
             };
+        };
+
+        /**
+         * @return array
+         */
+        $this[self::ADAPTER_CLASSES] = function () {
+            return [
+                'slim' => '\\Spore\\Adapter\\SlimAdapter',
+            ];
+        };
+
+        /**
+         * @return \Spore\Factory\AnnotationFactory
+         */
+        $this[self::ADAPTER_FACTORY] = function () {
+            return new AdapterFactory($this);
         };
     }
 } 

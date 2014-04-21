@@ -2,6 +2,7 @@
 namespace Spore\Factory;
 
 use DocBlock\Element\AnnotationElement;
+use Spore\Annotation\AbstractAnnotation;
 use Spore\Container;
 
 /**
@@ -14,7 +15,7 @@ class AnnotationFactory extends AbstractFactory
      *
      * @param \DocBlock\Element\AnnotationElement $element
      *
-     * @return null
+     * @return null|AbstractAnnotation
      */
     public function createByElement(AnnotationElement $element)
     {

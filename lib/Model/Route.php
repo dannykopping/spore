@@ -2,6 +2,8 @@
 namespace Spore\Model;
 
 use Spore\Annotation\AbstractAnnotation;
+use Spore\Annotation\BaseAnnotation;
+use Spore\Annotation\URIAnnotation;
 use Spore\Container;
 use Spore\Traits\ContainerAware;
 
@@ -48,6 +50,29 @@ class Route
         }
 
         $this->annotations[strtolower($annotation->getIdentifier())] = $annotation;
+    }
+
+    /**
+     * Return the full URI for this route, based on the @base & @uri annotation
+     *
+     * @return string
+     */
+    public function getURI()
+    {
+        $container = $this->getContainer();
+
+        $base = $this->getAnnotationByName($container[Container::BASE_ANNOTATION]);
+        $uri  = $this->getAnnotationByName($container[Container::URI_ANNOTATION]);
+
+        if ($base) {
+            $base = $base->getRaw()->getValue();
+        }
+
+        if ($uri) {
+            $uri = $uri->getRaw()->getValue();
+        }
+
+        return $base . $uri;
     }
 
     /**

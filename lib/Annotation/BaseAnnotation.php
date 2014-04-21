@@ -1,7 +1,7 @@
 <?php
 namespace Spore\Annotation;
 
-class Base extends AbstractAnnotation
+class BaseAnnotation extends AbstractAnnotation
 {
     public function getClassDefinable()
     {

@@ -1,7 +1,7 @@
 <?php
 
-use Spore\Annotation\Base;
-use Spore\Annotation\URI;
+use Spore\Annotation\BaseAnnotation;
+use Spore\Annotation\URIAnnotation;
 use Spore\Container;
 use Spore\Model\Route;
 use Spore\Spore;
@@ -17,7 +17,7 @@ class RouteExecutionTest extends PHPUnit_Framework_TestCase
     public function testRouteExecution()
     {
         $spore  = new Spore([new HelloWorldController()]);
-        $routes = $spore->initialise();
+        $routes = $spore->getRoutes();
 
         $this->assertNotEmpty($routes);
 
@@ -31,7 +31,7 @@ class RouteExecutionTest extends PHPUnit_Framework_TestCase
     public function testBeforeCallbackExecution()
     {
         $spore  = new Spore([new HelloWorldController()]);
-        $routes = $spore->initialise();
+        $routes = $spore->getRoutes();
 
         $container = $spore->getContainer();
 
@@ -55,7 +55,7 @@ class RouteExecutionTest extends PHPUnit_Framework_TestCase
     public function testAfterCallbackExecution()
     {
         $spore  = new Spore([new HelloWorldController()]);
-        $routes = $spore->initialise();
+        $routes = $spore->getRoutes();
 
         $container = $spore->getContainer();
 

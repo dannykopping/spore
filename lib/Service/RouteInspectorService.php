@@ -19,7 +19,7 @@ class RouteInspectorService extends BaseService
      */
     protected $targets;
 
-    public function run()
+    public function getRoutes()
     {
         $parser  = $this->getParser();
         $targets = $this->getTargets();

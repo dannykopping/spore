@@ -1,8 +1,10 @@
 <?php
 namespace Spore;
 
+use Spore\Factory\AdapterFactory;
 use Spore\Model\Route;
 use Spore\Service\RouteInspectorService;
+use stdClass;
 
 /**
  * @author Danny Kopping
@@ -36,35 +38,38 @@ class Spore
     }
 
     /**
-     * @return Route[]
-     */
-    public function initialise()
-    {
-        return $this->inspectRoutes();
-    }
-
-    /**
      * Inspect all namespace targets and return an array of Spore\Model\Route instances
      *
      * @return Route[]
      */
-    protected function inspectRoutes()
+    public function getRoutes()
     {
-        /**
-         * @var $routeInspector RouteInspectorService
-         */
-        $routeInspector = $this->container[Container::ROUTE_INSPECTOR];
+        $routeInspector = $this->getRouteInspectorService();
         $routeInspector->setTargets($this->getTargets());
 
-        $routes = $routeInspector->run($this->getContainer());
-
+        $routes = $routeInspector->getRoutes($this->getContainer());
         return $routes;
+    }
+
+    /**
+     * Create an adapter by name, and pass along a concrete instance
+     * of the object being adapted
+     *
+     * @param $adapterName
+     * @param $adaptee
+     *
+     * @return null|\Spore\Adapter\BaseAdapter
+     */
+    public function createAdapter($adapterName, $adaptee)
+    {
+        $adapter = $this->getAdapterFactory()->createByName($adapterName, $adaptee);
+        return $adapter;
     }
 
     /**
      * @return \Spore\Container
      */
-    public function &getContainer()
+    public function getContainer()
     {
         return $this->container;
     }
@@ -99,5 +104,21 @@ class Spore
     public function getTargets()
     {
         return $this->targets;
+    }
+
+    /**
+     * @return AdapterFactory
+     */
+    protected function getAdapterFactory()
+    {
+        return $this->container[Container::ADAPTER_FACTORY];
+    }
+
+    /**
+     * @return RouteInspectorService
+     */
+    private function getRouteInspectorService()
+    {
+        return $this->container[Container::ROUTE_INSPECTOR];
     }
 } 
