@@ -97,6 +97,11 @@ class RouteInspectorService extends BaseService
 
         $container = $this->getContainer();
         $prerequisites = $container[Container::PREREQUISITE_ANNOTATIONS];
+
+        if(!count($prerequisites)) {
+            return true;
+        }
+
         return $methodAnnotation->hasAnnotations($prerequisites);
     }
 

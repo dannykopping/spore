@@ -52,7 +52,9 @@ class Container extends Pimple
         /**
          * @return array
          */
-        $this[self::PREREQUISITE_ANNOTATIONS] = ['uri'];
+        $this[self::PREREQUISITE_ANNOTATIONS] = function () {
+            return ['uri'];
+        };
 
         /**
          * @return RouteInspectorService

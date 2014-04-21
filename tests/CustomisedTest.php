@@ -9,10 +9,12 @@ use Spore\Spore;
  */
 class CustomisedTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * Test that injecting more annotations at runtime works seamlessly
+     */
     public function testRuntimeCustomAnnotationInjection()
     {
-        $resource = new MyCustomResource();
-        $spore = new Spore([$resource]);
+        $spore = new Spore([new MyCustomResource()]);
 
         $container = $spore->getContainer();
         $container->extend(Container::ANNOTATION_CLASSES, function($annotations) {
@@ -21,10 +23,32 @@ class CustomisedTest extends PHPUnit_Framework_TestCase
         });
 
         $routes = $spore->initialise();
-        $this->assertGreaterThanOrEqual(1, $routes);
+        $this->assertNotEmpty($routes);
 
         $route = $routes[0];
         $this->assertArrayHasKey(MyCustomAnnotation::getIdentifier(), $route->getAnnotations());
+    }
+
+    /**
+     * Test overriding of prerequisite annotations that define a valid route
+     */
+    public function testRuntimePrerequisiteOverride()
+    {
+        $spore = new Spore([new MyCustomResource2()]);
+
+        $container = $spore->getContainer();
+        $container->extend(Container::ANNOTATION_CLASSES, function($annotations) {
+            $annotations['Custom'] = 'MyCustomAnnotation';
+            return $annotations;
+        });
+
+        $container = $spore->getContainer();
+        $container->extend(Container::PREREQUISITE_ANNOTATIONS, function() {
+            return [];
+        });
+
+        $routes = $spore->initialise();
+        $this->assertNotEmpty($routes);
     }
 }
 
@@ -36,6 +60,18 @@ class MyCustomResource
     /**
      * @uri         /xxx
      * @custom      Hello, World!
+     */
+    public function myCustomAction()
+    {
+    }
+}
+
+class MyCustomResource2
+{
+    /**
+     * Look ma, no @uri annotation which is normally a prerequisite!
+     *
+     * @custom
      */
     public function myCustomAction()
     {

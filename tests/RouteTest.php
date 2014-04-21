@@ -30,7 +30,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $spore  = new Spore([new MyRouteWithBase()]);
         $routes = $spore->initialise();
 
-        $this->assertGreaterThanOrEqual(1, $routes);
+        $this->assertNotEmpty($routes);
 
         $route = $routes[0];
         $this->assertContainsOnlyInstancesOf('\\Spore\\Annotation\\AbstractAnnotation', $route->getAnnotations());

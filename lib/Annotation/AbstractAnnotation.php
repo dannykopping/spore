@@ -2,7 +2,9 @@
 namespace Spore\Annotation;
 
 use DocBlock\Element\AnnotationElement;
+use DocBlock\Element\ClassElement;
 use Exception;
+use Spore\Exception\AnnotationException;
 
 /**
  * @author Danny Kopping
@@ -14,11 +16,27 @@ abstract class AbstractAnnotation
      *
      * @var AnnotationElement
      */
-    private $raw;
+    protected $raw;
 
-    public function __construct($element)
+    /**
+     * Specifies whether this annotation can be defined at class level
+     *
+     * @var bool
+     */
+    protected $classDefinable = false;
+
+    public function __construct(AnnotationElement $raw)
     {
-        $this->setRaw($element);
+        $this->setRaw($raw);
+
+        if(!$raw || !$raw->getElement()) {
+            return;
+        }
+
+        $container = $raw->getElement();
+        if($container instanceof ClassElement && !$this->getClassDefinable()) {
+            throw new AnnotationException(AnnotationException::ANNOTATION_AT_CLASS_LEVEL, $this->getIdentifier());
+        }
     }
 
     /**
@@ -28,6 +46,14 @@ abstract class AbstractAnnotation
     public static function getIdentifier()
     {
         throw new Exception('No identifier implemented for ' . get_called_class());
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getClassDefinable()
+    {
+        return $this->classDefinable;
     }
 
     /**
