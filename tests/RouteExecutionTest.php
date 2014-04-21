@@ -147,7 +147,7 @@ class HelloWorldController
 
     /**
      * @uri         /single-verb
-     * @verbs       GET,POST,HEAD
+     * @verb       GET,POST,HEAD
      */
     public function multipleVerbs()
     {
