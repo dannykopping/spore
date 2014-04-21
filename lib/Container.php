@@ -14,26 +14,31 @@ use Spore\Service\RouteInspectorService;
  */
 class Container extends Pimple
 {
+    const BASE_ANNOTATION  = 'base-annotation';
+    const URI_ANNOTATION   = 'uri-annotation';
+    const VERBS_ANNOTATION = 'methods-annotation';
+
     const DOCBLOCK_PARSER = 'docblock-parser';
+    const ROUTE_INSPECTOR = 'route-inspector';
+
+    const ADAPTER_FACTORY = 'adapter-factory';
+    const ADAPTER_CLASSES = 'adapter-classes';
 
     const ANNOTATION_FACTORY       = 'annotation-factory';
     const ANNOTATION_CLASSES       = 'annotation-classes';
     const PREREQUISITE_ANNOTATIONS = 'prerequisite-annotations';
 
-    const BASE_ANNOTATION = 'base-annotation';
-    const URI_ANNOTATION  = 'uri-annotation';
-
-    const ROUTE_INSPECTOR = 'route-inspector';
-
     const BEFORE_CALLBACK  = 'before-callback';
     const CALLBACK_WRAPPER = 'callback-wrapper';
     const AFTER_CALLBACK   = 'after-callback';
 
-    const ADAPTER_FACTORY = 'adapter-factory';
-    const ADAPTER_CLASSES = 'adapter-classes';
 
     public function initialise()
     {
+        $this[self::BASE_ANNOTATION]  = 'base';
+        $this[self::URI_ANNOTATION]   = 'uri';
+        $this[self::VERBS_ANNOTATION] = 'verbs';
+
         /**
          * @return Parser
          */
@@ -57,8 +62,9 @@ class Container extends Pimple
          */
         $this[self::ANNOTATION_CLASSES] = function () {
             return [
-                'uri'  => '\\Spore\\Annotation\\URIAnnotation',
-                'base' => '\\Spore\\Annotation\\BaseAnnotation',
+                $this[self::BASE_ANNOTATION]  => '\\Spore\\Annotation\\BaseAnnotation',
+                $this[self::URI_ANNOTATION]   => '\\Spore\\Annotation\\URIAnnotation',
+                $this[self::VERBS_ANNOTATION] => '\\Spore\\Annotation\\VerbsAnnotation',
             ];
         };
 
@@ -66,21 +72,9 @@ class Container extends Pimple
          * @return array
          */
         $this[self::PREREQUISITE_ANNOTATIONS] = function () {
-            return ['uri'];
-        };
-
-        /**
-         * @return string
-         */
-        $this[self::BASE_ANNOTATION] = function () {
-            return 'base';
-        };
-
-        /**
-         * @return string
-         */
-        $this[self::URI_ANNOTATION] = function () {
-            return 'uri';
+            return [
+                $this[self::URI_ANNOTATION],
+            ];
         };
 
         /**

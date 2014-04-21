@@ -7,4 +7,9 @@ class URIAnnotation extends AbstractAnnotation
     {
         return 'uri';
     }
+
+    public function getDefaultValue()
+    {
+        return null;
+    }
 }

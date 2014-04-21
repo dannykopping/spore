@@ -84,4 +84,9 @@ class MyCustomAnnotation extends AbstractAnnotation
     {
         return 'custom';
     }
+
+    public function getDefaultValue()
+    {
+        return null;
+    }
 }

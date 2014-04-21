@@ -48,6 +48,20 @@ abstract class AbstractAnnotation
         throw new Exception('No identifier implemented for ' . get_called_class());
     }
 
+    public function getValue()
+    {
+        $value = $this->getRaw()->getValue();
+        return !empty($value) ? $value : $this->getDefaultValue();
+    }
+
+    public function getValues()
+    {
+        $value = $this->getRaw()->getValues();
+        return !empty($value) ? $value : $this->getDefaultValue();
+    }
+
+    abstract public function getDefaultValue();
+
     /**
      * @return boolean
      */

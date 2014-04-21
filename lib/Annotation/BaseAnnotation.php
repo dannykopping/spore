@@ -12,4 +12,9 @@ class BaseAnnotation extends AbstractAnnotation
     {
         return 'base';
     }
+
+    public function getDefaultValue()
+    {
+        return null;
+    }
 }

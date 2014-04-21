@@ -2,8 +2,6 @@
 namespace Spore\Model;
 
 use Spore\Annotation\AbstractAnnotation;
-use Spore\Annotation\BaseAnnotation;
-use Spore\Annotation\URIAnnotation;
 use Spore\Container;
 use Spore\Traits\ContainerAware;
 
@@ -61,18 +59,27 @@ class Route
     {
         $container = $this->getContainer();
 
-        $base = $this->getAnnotationByName($container[Container::BASE_ANNOTATION]);
-        $uri  = $this->getAnnotationByName($container[Container::URI_ANNOTATION]);
-
-        if ($base) {
-            $base = $base->getRaw()->getValue();
-        }
-
-        if ($uri) {
-            $uri = $uri->getRaw()->getValue();
-        }
+        $base = $this->getValueByAnnotation($container[Container::BASE_ANNOTATION]);
+        $uri  = $this->getValueByAnnotation($container[Container::URI_ANNOTATION]);
 
         return $base . $uri;
+    }
+
+    /**
+     * Get the defined verbs, otherwise - if none have been defined - return all supported verbs
+     *
+     * @return array|null|string
+     */
+    public function getVerbs()
+    {
+        $container = $this->getContainer();
+
+        $verbs = $this->getValueByAnnotation($container[Container::VERBS_ANNOTATION], true);
+        if (empty($verbs)) {
+            return Verbs::getAll();
+        }
+
+        return $verbs;
     }
 
     /**
@@ -87,6 +94,24 @@ class Route
         }
 
         return $this->annotations[$name];
+    }
+
+    /**
+     * Return an annotation's value
+     *
+     * @param      $name
+     * @param bool $multiple
+     *
+     * @return array|null|string
+     */
+    public function getValueByAnnotation($name, $multiple = false)
+    {
+        if (!isset($this->annotations[$name])) {
+            return null;
+        }
+
+        $annotation = $this->annotations[$name];
+        return $multiple ? $annotation->getValues() : $annotation->getValue();
     }
 
     /**

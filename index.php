@@ -11,7 +11,9 @@ $routes = $spore->getRoutes();
 $adapter = $spore->createAdapter(SlimAdapter::getName(), $s);
 
 $adapter->createRoute(current($routes));
+var_dump($_SERVER); die();
 
+$s->call();
 $s->run();
 
 class MyXXX
