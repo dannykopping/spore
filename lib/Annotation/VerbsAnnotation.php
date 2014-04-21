@@ -26,4 +26,9 @@ class VerbsAnnotation extends AbstractAnnotation
     {
         return implode(',', Verbs::getAll());
     }
+
+    public function getClassDefinable()
+    {
+        return true;
+    }
 }
