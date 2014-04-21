@@ -97,10 +97,11 @@ class Route
     {
         $container = $this->getContainer();
         $before    = $container[Container::BEFORE_CALLBACK];
+        $callback  = $container[Container::CALLBACK_WRAPPER];
         $after     = $container[Container::AFTER_CALLBACK];
 
         call_user_func_array($before, [$this]);
-        $result = call_user_func($this->getCallback());
+        $result = call_user_func_array($callback, [$this]);
         call_user_func_array($after, [$this, $result]);
 
         return $result;

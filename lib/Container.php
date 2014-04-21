@@ -68,7 +68,16 @@ class Container extends Pimple
          */
         $this[self::BEFORE_CALLBACK] = function () {
             return function (Route $route) {
-                echo 'Before -> ' . $route->getAnnotationByName('uri');
+                return;
+            };
+        };
+
+        /**
+         * @return callable
+         */
+        $this[self::CALLBACK_WRAPPER] = function () {
+            return function (Route $route) {
+                return call_user_func_array($route->getCallback(), [$route]);
             };
         };
 
@@ -77,7 +86,7 @@ class Container extends Pimple
          */
         $this[self::AFTER_CALLBACK] = function () {
             return function (Route $route, $result = null) {
-                echo 'After -> ' . $route->getAnnotationByName('uri') . PHP_EOL . var_export($result, true);
+                return;
             };
         };
     }

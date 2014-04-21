@@ -45,7 +45,7 @@ class RouteInspectorService extends BaseService
             $methodReflector = $method->getReflectionObject();
             $route           = new Route($methodReflector->getClosure($instance), $this->getContainer(), $routeAnnotations);
 
-            $routes[] = $route;
+            $routes[$methodReflector->getName()] = $route;
         }
 
         return $routes;

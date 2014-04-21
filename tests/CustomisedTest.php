@@ -25,7 +25,7 @@ class CustomisedTest extends PHPUnit_Framework_TestCase
         $routes = $spore->initialise();
         $this->assertNotEmpty($routes);
 
-        $route = $routes[0];
+        $route = current($routes);
         $this->assertArrayHasKey(MyCustomAnnotation::getIdentifier(), $route->getAnnotations());
     }
 

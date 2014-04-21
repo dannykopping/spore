@@ -2,19 +2,20 @@
 
 use Spore\Annotation\Base;
 use Spore\Annotation\URI;
+use Spore\Model\Route;
 use Spore\Spore;
 
 /**
  * @group routing
  */
-class RouteTest extends PHPUnit_Framework_TestCase
+class RouteDefinitionTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Test that adding a target to Spore actually works
      */
     public function testTarget()
     {
-        $resource = new MyRouteWithBase();
+        $resource = new MyRouteWithBaseController();
 
         $spore = new Spore([$resource]);
         $spore->initialise();
@@ -27,12 +28,12 @@ class RouteTest extends PHPUnit_Framework_TestCase
      */
     public function testRoutesCorrectness()
     {
-        $spore  = new Spore([new MyRouteWithBase()]);
+        $spore  = new Spore([new MyRouteWithBaseController()]);
         $routes = $spore->initialise();
 
         $this->assertNotEmpty($routes);
 
-        $route = $routes[0];
+        $route = current($routes);
         $this->assertContainsOnlyInstancesOf('\\Spore\\Annotation\\AbstractAnnotation', $route->getAnnotations());
     }
 
@@ -41,10 +42,10 @@ class RouteTest extends PHPUnit_Framework_TestCase
      */
     public function testBaseRoute()
     {
-        $spore  = new Spore([new MyRouteWithBase()]);
+        $spore  = new Spore([new MyRouteWithBaseController()]);
         $routes = $spore->initialise();
 
-        $route = $routes[0];
+        $route = current($routes);
         $this->assertArrayHasKey(Base::getIdentifier(), $route->getAnnotations());
         $this->assertArrayHasKey(URI::getIdentifier(), $route->getAnnotations());
     }
@@ -54,7 +55,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
      */
     public function testUnroutableRoute()
     {
-        $spore  = new Spore([new MyUnroutableRoute()]);
+        $spore  = new Spore([new MyUnroutableRouteController()]);
         $routes = $spore->initialise();
 
         $this->assertEmpty($routes);
@@ -64,7 +65,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 /**
  * @base        /resource
  */
-class MyRouteWithBase
+class MyRouteWithBaseController
 {
     /**
      * @uri     /action
@@ -74,7 +75,7 @@ class MyRouteWithBase
     }
 }
 
-class MyUnroutableRoute
+class MyUnroutableRouteController
 {
     /**
      * @invalid     /unroutable
