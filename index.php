@@ -11,18 +11,15 @@ $routes = $spore->getRoutes();
 $adapter = $spore->createAdapter(SlimAdapter::getName(), $s);
 
 $adapter->createRoute(current($routes));
-var_dump($_SERVER); die();
-
-$s->call();
 $s->run();
 
 class MyXXX
 {
     /**
-     * @uri     /hi
+     * @uri     /hi/:id
      */
-    public function sayHi()
+    public function sayHi($id)
     {
-        die("HI!");
+        die($id);
     }
 }

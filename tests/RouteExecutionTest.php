@@ -4,7 +4,7 @@ use Spore\Annotation\BaseAnnotation;
 use Spore\Annotation\URIAnnotation;
 use Spore\Annotation\VerbsAnnotation;
 use Spore\Container;
-use Spore\Model\Route;
+use Spore\Model\RouteModel;
 use Spore\Model\Verbs;
 use Spore\Spore;
 
@@ -41,7 +41,7 @@ class RouteExecutionTest extends PHPUnit_Framework_TestCase
         $container->extend(
             Container::BEFORE_CALLBACK,
             function () use (&$executed) {
-                return function (Route $route) use (&$executed) {
+                return function (RouteModel $route) use (&$executed) {
                     $executed = true;
                 };
             }
@@ -68,7 +68,7 @@ class RouteExecutionTest extends PHPUnit_Framework_TestCase
         $container->extend(
             Container::AFTER_CALLBACK,
             function () use (&$passedResult) {
-                return function (Route $route, $routeResult = null) use (&$passedResult) {
+                return function (RouteModel $route, $routeResult = null) use (&$passedResult) {
                     $passedResult = $routeResult;
                 };
             }
@@ -136,7 +136,7 @@ class HelloWorldController
     /**
      * @uri         /echo
      */
-    public function echoRoute(Route $route)
+    public function echoRoute(RouteModel $route)
     {
         return $route;
     }
@@ -144,7 +144,7 @@ class HelloWorldController
     /**
      * @uri         /allo
      */
-    public function sayHello(Route $route)
+    public function sayHello(RouteModel $route)
     {
         return 'allo, allo!';
     }

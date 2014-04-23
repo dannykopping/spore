@@ -7,7 +7,7 @@ use DocBlock\Parser;
 use ReflectionMethod;
 use Spore\Container;
 use Spore\Factory\AnnotationFactory;
-use Spore\Model\Route;
+use Spore\Model\RouteModel;
 
 /**
  * @author Danny Kopping
@@ -43,7 +43,7 @@ class RouteInspectorService extends BaseService
              * @var $methodReflector ReflectionMethod
              */
             $methodReflector = $method->getReflectionObject();
-            $route           = new Route($methodReflector->getClosure($instance), $this->getContainer(), $routeAnnotations);
+            $route           = new RouteModel($methodReflector->getClosure($instance), $this->getContainer(), $routeAnnotations);
 
             $routes[$methodReflector->getName()] = $route;
         }

@@ -2,7 +2,7 @@
 namespace Spore;
 
 use Spore\Factory\AdapterFactory;
-use Spore\Model\Route;
+use Spore\Model\RouteModel;
 use Spore\Service\RouteInspectorService;
 use stdClass;
 
@@ -40,7 +40,7 @@ class Spore
     /**
      * Inspect all namespace targets and return an array of Spore\Model\Route instances
      *
-     * @return Route[]
+     * @return RouteModel[]
      */
     public function getRoutes()
     {

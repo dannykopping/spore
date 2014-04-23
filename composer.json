@@ -1,11 +1,11 @@
 {
     "require": {
         "dannykopping/docblock": "dev-master",
-        "pimple/pimple": "~2.0.0"
+        "pimple/pimple": "~2.0.0@stable"
     },
     "require-dev": {
         "doctrine/cache": "v1.3.0",
-        "slim/slim": "~2.4"
+        "slim/slim": "~2.4@stable"
     },
     "autoload": {
         "psr-4": {

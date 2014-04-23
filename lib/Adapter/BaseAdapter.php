@@ -3,7 +3,7 @@ namespace Spore\Adapter;
 
 use Exception;
 use Spore\Container;
-use Spore\Model\Route;
+use Spore\Model\RouteModel;
 use Spore\Traits\ContainerAware;
 
 /**
@@ -24,7 +24,14 @@ abstract class BaseAdapter
         $this->setAdaptee($adaptee);
     }
 
-    abstract public function createRoute(Route $route);
+    /**
+     * Define a route in the adaptee
+     *
+     * @param RouteModel $model
+     *
+     * @return mixed
+     */
+    abstract public function createRoute(RouteModel $model);
 
     /**
      * @param mixed $instance

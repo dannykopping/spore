@@ -8,7 +8,7 @@ use Spore\Traits\ContainerAware;
 /**
  * @author Danny Kopping
  */
-class Route
+class RouteModel
 {
     use ContainerAware;
 
@@ -135,7 +135,7 @@ class Route
      */
     public function getCallback()
     {
-        return $this->callback;
+        return array($this, 'execute');
     }
 
     /**
@@ -147,11 +147,10 @@ class Route
     {
         $container = $this->getContainer();
         $before    = $container[Container::BEFORE_CALLBACK];
-        $callback  = $container[Container::CALLBACK_WRAPPER];
         $after     = $container[Container::AFTER_CALLBACK];
 
         call_user_func_array($before, [$this]);
-        $result = call_user_func_array($callback, [$this]);
+        $result = call_user_func_array($this->callback, func_get_args());
         call_user_func_array($after, [$this, $result]);
 
         return $result;

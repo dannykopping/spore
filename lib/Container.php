@@ -6,7 +6,7 @@ use Pimple;
 use ReflectionMethod;
 use Spore\Factory\AdapterFactory;
 use Spore\Factory\AnnotationFactory;
-use Spore\Model\Route;
+use Spore\Model\RouteModel;
 use Spore\Service\RouteInspectorService;
 
 /**
@@ -31,7 +31,6 @@ class Container extends Pimple
     const PREREQUISITE_ANNOTATIONS = 'prerequisite-annotations';
 
     const BEFORE_CALLBACK  = 'before-callback';
-    const CALLBACK_WRAPPER = 'callback-wrapper';
     const AFTER_CALLBACK   = 'after-callback';
 
 
@@ -94,7 +93,7 @@ class Container extends Pimple
          * @return callable
          */
         $this[self::BEFORE_CALLBACK] = function () {
-            return function (Route $route) {
+            return function (RouteModel $route) {
                 return;
             };
         };
@@ -102,17 +101,8 @@ class Container extends Pimple
         /**
          * @return callable
          */
-        $this[self::CALLBACK_WRAPPER] = function () {
-            return function (Route $route) {
-                return call_user_func_array($route->getCallback(), [$route]);
-            };
-        };
-
-        /**
-         * @return callable
-         */
         $this[self::AFTER_CALLBACK] = function () {
-            return function (Route $route, $result = null) {
+            return function (RouteModel $route, $result = null) {
                 return;
             };
         };

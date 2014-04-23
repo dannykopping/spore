@@ -1,9 +1,10 @@
 <?php
 namespace Spore\Adapter;
 
+use Slim\Route;
 use Slim\Slim;
 use Spore\Container;
-use Spore\Model\Route;
+use Spore\Model\RouteModel;
 
 /**
  * @author Danny Kopping
@@ -11,11 +12,13 @@ use Spore\Model\Route;
 class SlimAdapter extends BaseAdapter
 {
     /**
-     * @param Route $route
+     * Define a route in the adaptee
      *
-     * @return \Slim\Route
+     * @param RouteModel $model
+     *
+     * @return mixed
      */
-    public function createRoute(Route $route)
+    public function createRoute(RouteModel $model)
     {
         $container = $this->getContainer();
 
@@ -23,15 +26,40 @@ class SlimAdapter extends BaseAdapter
          * @var $adaptee Slim
          */
         $adaptee = $this->getAdaptee();
-        $adapteeRoute = $adaptee->map($route->getURI(), $route->getCallback());
-        call_user_func_array(array($adapteeRoute, 'setHttpMethods'), $route->getVerbs());
 
-        $name = $route->getValueByAnnotation($container[Container::NAME_ANNOTATION]);
-        if(!empty($name)) {
-            $adapteeRoute->setName($name);
+        $route = new Route($model->getURI(), $model->getCallback());
+        $this->setVerbs($route, $model->getVerbs());
+
+        /**
+         * Map all defined annotations to the route
+         */
+        foreach ($model->getAnnotations() as $annotation) {
+
+            switch ($annotation->getIdentifier()) {
+
+                case $container[Container::NAME_ANNOTATION]:
+                    $alias = $model->getValueByAnnotation($container[Container::NAME_ANNOTATION]);
+                    $this->setAlias($route, $alias);
+                    break;
+
+            }
         }
 
-        return $adapteeRoute;
+        // add route to Slim's router
+        $adaptee->router->map($route);
+        return $route;
+    }
+
+    private function setVerbs(Route $route, array $verbs)
+    {
+        call_user_func_array(array($route, 'setHttpMethods'), $verbs);
+    }
+
+    private function setAlias(Route $route, $alias)
+    {
+        if (!empty($alias)) {
+            $route->setName($alias);
+        }
     }
 
     /**
