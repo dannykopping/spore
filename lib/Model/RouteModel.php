@@ -146,6 +146,8 @@ class RouteModel
     public function execute()
     {
         $container = $this->getContainer();
+        $container[Container::CURRENT_ROUTE] = $this;
+
         $before    = $container[Container::BEFORE_CALLBACK];
         $after     = $container[Container::AFTER_CALLBACK];
 

@@ -1,8 +1,5 @@
 <?php
 
-use Spore\Annotation\BaseAnnotation;
-use Spore\Annotation\URIAnnotation;
-use Spore\Annotation\VerbsAnnotation;
 use Spore\Container;
 use Spore\Model\RouteModel;
 use Spore\Model\Verbs;
@@ -14,19 +11,23 @@ use Spore\Spore;
 class RouteExecutionTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * Test that executing a route returns an expected result (the injected Route parameter)
+     * Test that executing a route will, in turn, set it in the DI container as the 'current route'
      */
-    public function testRouteExecution()
+    public function testCurrentRoute()
     {
         $spore  = new Spore([new HelloWorldController()]);
         $routes = $spore->getRoutes();
 
-        $this->assertNotEmpty($routes);
+        $container = $spore->getContainer();
 
-        $route = current($routes);
-        $this->assertSame($route, $route->execute());
+        $this->assertArrayHasKey('echoRoute', $routes);
+
+        $route = $routes['echoRoute'];
+
+        $this->assertSame($container[Container::CURRENT_ROUTE], null);
+        $route->execute();
+        $this->assertSame($container[Container::CURRENT_ROUTE], $route);
     }
-
     /**
      * Test that executing a route will, in turn, fire the beforeCallback
      */
@@ -48,9 +49,10 @@ class RouteExecutionTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertArrayHasKey('echoRoute', $routes);
-        $route = $routes['echoRoute'];
 
-        $this->assertSame($route, $route->execute());
+        $route = $routes['echoRoute'];
+        $route->execute();
+
         $this->assertTrue($executed);
     }
 
@@ -136,15 +138,15 @@ class HelloWorldController
     /**
      * @uri         /echo
      */
-    public function echoRoute(RouteModel $route)
+    public function echoRoute()
     {
-        return $route;
+        return 'hello';
     }
 
     /**
      * @uri         /allo
      */
-    public function sayHello(RouteModel $route)
+    public function sayHello()
     {
         return 'allo, allo!';
     }

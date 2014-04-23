@@ -30,8 +30,10 @@ class Container extends Pimple
     const ANNOTATION_CLASSES       = 'annotation-classes';
     const PREREQUISITE_ANNOTATIONS = 'prerequisite-annotations';
 
-    const BEFORE_CALLBACK  = 'before-callback';
-    const AFTER_CALLBACK   = 'after-callback';
+    const BEFORE_CALLBACK = 'before-callback';
+    const AFTER_CALLBACK  = 'after-callback';
+
+    const CURRENT_ROUTE = 'current-route';
 
 
     public function initialise()
@@ -69,7 +71,7 @@ class Container extends Pimple
                 $this[self::URI_ANNOTATION]   => '\\Spore\\Annotation\\URIAnnotation',
                 $this[self::VERB_ANNOTATION]  => '\\Spore\\Annotation\\VerbsAnnotation',
                 $this[self::VERBS_ANNOTATION] => '\\Spore\\Annotation\\VerbsAnnotation',
-                $this[self::NAME_ANNOTATION] => '\\Spore\\Annotation\\NameAnnotation',
+                $this[self::NAME_ANNOTATION]  => '\\Spore\\Annotation\\NameAnnotation',
             ];
         };
 
@@ -122,5 +124,7 @@ class Container extends Pimple
         $this[self::ADAPTER_FACTORY] = function () {
             return new AdapterFactory($this);
         };
+
+        $this[self::CURRENT_ROUTE]  = null;
     }
 } 
