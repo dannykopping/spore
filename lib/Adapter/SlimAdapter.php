@@ -1,6 +1,7 @@
 <?php
 namespace Spore\Adapter;
 
+use Exception;
 use Slim\Route;
 use Slim\Slim;
 use Spore\Container;
@@ -11,6 +12,32 @@ use Spore\Model\RouteModel;
  */
 class SlimAdapter extends BaseAdapter
 {
+    /**
+     * Define multiple routes in the adaptee
+     *
+     * @param RouteModel[] $models
+     *
+     * @throws \Exception
+     * @return mixed
+     */
+    public function createRoutes($models = array())
+    {
+        if(!count($models)) {
+            return [];
+        }
+
+        $routes = [];
+        foreach($models as $model) {
+            if(!$model instanceof RouteModel) {
+                throw new Exception('Invalid route model supplied');
+            }
+
+            $routes[] = $this->createRoute($model);
+        }
+
+        return $routes;
+    }
+
     /**
      * Define a route in the adaptee
      *

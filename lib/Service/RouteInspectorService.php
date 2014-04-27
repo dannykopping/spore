@@ -4,6 +4,7 @@ namespace Spore\Service;
 use DocBlock\Element\Base as BaseAnnotationElement;
 use DocBlock\Element\MethodElement;
 use DocBlock\Parser;
+use Exception;
 use ReflectionMethod;
 use Spore\Container;
 use Spore\Factory\AnnotationFactory;
@@ -43,7 +44,9 @@ class RouteInspectorService extends BaseService
              * @var $methodReflector ReflectionMethod
              */
             $methodReflector = $method->getReflectionObject();
-            $route           = new RouteModel($methodReflector->getClosure($instance), $this->getContainer(), $routeAnnotations);
+            $routeModelClass = $this->getRouteModelClass();
+            $callback        = $methodReflector->getClosure($instance);
+            $route           = new $routeModelClass($callback, $this->getContainer(), $routeAnnotations);
 
             $routes[$methodReflector->getName()] = $route;
         }
@@ -95,10 +98,10 @@ class RouteInspectorService extends BaseService
             return false;
         }
 
-        $container = $this->getContainer();
+        $container     = $this->getContainer();
         $prerequisites = $container[Container::PREREQUISITE_ANNOTATIONS];
 
-        if(!count($prerequisites)) {
+        if (!count($prerequisites)) {
             return true;
         }
 
@@ -160,6 +163,22 @@ class RouteInspectorService extends BaseService
     {
         $container = $this->getContainer();
         return $container[Container::ANNOTATION_FACTORY];
+    }
+
+    /**
+     * @throws \Exception
+     * @return string
+     */
+    protected function getRouteModelClass()
+    {
+        $container = $this->getContainer();
+        $class     = $container[Container::ROUTE_MODEL];
+
+        if (!class_exists($class)) {
+            throw new Exception('Invalid route model class defined - ' . $class);
+        }
+
+        return $class;
     }
 
     /**

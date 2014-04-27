@@ -20,7 +20,7 @@ class SlimAdapterTest extends BaseAdapterTest
         $adapter = $spore->createAdapter(SlimAdapter::getName(), $slim);
 
         $routes = $spore->getRoutes();
-        $model = $routes['hello'];
+        $model  = $routes['hello'];
 
         $adapter->createRoute($model);
 
@@ -53,7 +53,7 @@ class SlimAdapterTest extends BaseAdapterTest
         $adapter = $spore->createAdapter(SlimAdapter::getName(), $slim);
 
         $routes = $spore->getRoutes();
-        $model = $routes['jollyWell'];
+        $model  = $routes['jollyWell'];
 
         /**
          * @var $route \Slim\Route
@@ -73,7 +73,7 @@ class SlimAdapterTest extends BaseAdapterTest
         $adapter = $spore->createAdapter(SlimAdapter::getName(), $slim);
 
         $routes = $spore->getRoutes();
-        $model = $routes['tallyHo'];
+        $model  = $routes['tallyHo'];
 
         /**
          * @var $route \Slim\Route
@@ -95,7 +95,7 @@ class SlimAdapterTest extends BaseAdapterTest
         $adapter = $spore->createAdapter(SlimAdapter::getName(), $slim);
 
         $routes = $spore->getRoutes();
-        $model = $routes['testParams'];
+        $model  = $routes['testParams'];
 
         $adapter->createRoute($model);
 
@@ -118,12 +118,12 @@ class SlimAdapterTest extends BaseAdapterTest
      */
     public function testCurrentRoute(Slim $slim)
     {
-        $spore   = new Spore([new HelloSlimController()]);
+        $spore     = new Spore([new HelloSlimController()]);
         $container = $spore->getContainer();
-        $adapter = $spore->createAdapter(SlimAdapter::getName(), $slim);
+        $adapter   = $spore->createAdapter(SlimAdapter::getName(), $slim);
 
         $routes = $spore->getRoutes();
-        $model = $routes['testParams'];
+        $model  = $routes['testParams'];
 
         $adapter->createRoute($model);
 
@@ -137,6 +137,22 @@ class SlimAdapterTest extends BaseAdapterTest
 
         $slim->call();
         $this->assertSame($container[Container::CURRENT_ROUTE], $model);
+    }
+
+    /**
+     * Ensure that multiple routes can be created at once
+     *
+     * @dataProvider    adapteeDataProvider
+     */
+    public function testMultipleRouteCreation(Slim $slim)
+    {
+        $spore       = new Spore([new HelloSlimController()]);
+        $adapter     = $spore->createAdapter(SlimAdapter::getName(), $slim);
+        $routeModels = $spore->getRoutes();
+        $routes      = $adapter->createRoutes($routeModels);
+
+        $this->assertGreaterThan(0, count($routeModels));
+        $this->assertCount(count($routeModels), $routes);
     }
 
     public function getAdapterName()

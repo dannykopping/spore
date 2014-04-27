@@ -22,6 +22,7 @@ class Container extends Pimple
 
     const DOCBLOCK_PARSER = 'docblock-parser';
     const ROUTE_INSPECTOR = 'route-inspector';
+    const ROUTE_MODEL     = 'route-model';
 
     const ADAPTER_FACTORY = 'adapter-factory';
     const ADAPTER_CLASSES = 'adapter-classes';
@@ -91,6 +92,8 @@ class Container extends Pimple
             return new RouteInspectorService($this);
         };
 
+        $this[self::ROUTE_MODEL] = '\\Spore\\Model\\RouteModel';
+
         /**
          * @return callable
          */
@@ -125,6 +128,6 @@ class Container extends Pimple
             return new AdapterFactory($this);
         };
 
-        $this[self::CURRENT_ROUTE]  = null;
+        $this[self::CURRENT_ROUTE] = null;
     }
 } 

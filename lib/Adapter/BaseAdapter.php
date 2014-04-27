@@ -25,7 +25,16 @@ abstract class BaseAdapter
     }
 
     /**
-     * Define a route in the adaptee
+     * Define multiple routes in the adaptee
+     *
+     * @param RouteModel[] $models
+     *
+     * @return mixed
+     */
+    abstract public function createRoutes($models = array());
+
+    /**
+     * Define a single route in the adaptee
      *
      * @param RouteModel $model
      *
