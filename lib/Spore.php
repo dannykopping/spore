@@ -56,13 +56,13 @@ class Spore
      * of the object being adapted
      *
      * @param $adapterName
-     * @param $adaptee
+     * @param $router
      *
      * @return null|\Spore\Adapter\BaseAdapter
      */
-    public function createAdapter($adapterName, $adaptee)
+    public function createAdapter($adapterName, $router)
     {
-        $adapter = $this->getAdapterFactory()->createByName($adapterName, $adaptee);
+        $adapter = $this->getAdapterFactory()->createByName($adapterName, $router);
         return $adapter;
     }
 

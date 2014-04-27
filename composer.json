@@ -5,7 +5,8 @@
     },
     "require-dev": {
         "doctrine/cache": "v1.3.0",
-        "slim/slim": "~2.4@stable"
+        "slim/slim": "~2.4@stable",
+        "laravel/framework": "~4.1@stable"
     },
     "autoload": {
         "psr-4": {

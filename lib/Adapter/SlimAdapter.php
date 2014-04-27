@@ -3,7 +3,7 @@ namespace Spore\Adapter;
 
 use Exception;
 use Slim\Route;
-use Slim\Slim;
+use Slim\Router;
 use Spore\Container;
 use Spore\Model\RouteModel;
 
@@ -13,7 +13,7 @@ use Spore\Model\RouteModel;
 class SlimAdapter extends BaseAdapter
 {
     /**
-     * Define multiple routes in the adaptee
+     * Define multiple routes in the router
      *
      * @param RouteModel[] $models
      *
@@ -39,7 +39,7 @@ class SlimAdapter extends BaseAdapter
     }
 
     /**
-     * Define a route in the adaptee
+     * Define a route in the router
      *
      * @param RouteModel $model
      *
@@ -50,9 +50,9 @@ class SlimAdapter extends BaseAdapter
         $container = $this->getContainer();
 
         /**
-         * @var $adaptee Slim
+         * @var $router Router
          */
-        $adaptee = $this->getAdaptee();
+        $router = $this->getRouter();
 
         $route = new Route($model->getURI(), $model->getCallback());
         $this->setVerbs($route, $model->getVerbs());
@@ -73,7 +73,7 @@ class SlimAdapter extends BaseAdapter
         }
 
         // add route to Slim's router
-        $adaptee->router->map($route);
+        $router->map($route);
         return $route;
     }
 
@@ -96,4 +96,15 @@ class SlimAdapter extends BaseAdapter
     {
         return 'slim';
     }
+
+    /**
+     * Defines the expected class of the adapter's router
+     *
+     * @return string
+     */
+    public function getRouterClass()
+    {
+        return '\\Slim\\Router';
+    }
+
 }

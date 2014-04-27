@@ -18,20 +18,20 @@ abstract class BaseAdapterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider adapteeDataProvider
+     * @dataProvider routerDataProvider
      */
-    public function testAdapterCreation($adaptee)
+    public function testAdapterCreation($router)
     {
         $spore = new Spore();
 
-        $adapter = $spore->createAdapter($this->getAdapterName(), $adaptee);
+        $adapter = $spore->createAdapter($this->getAdapterName(), $router);
         $this->assertInstanceOf('\\Spore\\Adapter\\BaseAdapter', $adapter);
-        $this->assertInstanceOf($this->getMainClassNamespace(), $adapter->getAdaptee());
+        $this->assertInstanceOf($this->getMainClassNamespace(), $adapter->getRouter());
     }
 
     abstract public function getAdapterName();
 
     abstract public function getMainClassNamespace();
 
-    abstract public function adapteeDataProvider();
+    abstract public function routerDataProvider();
 }

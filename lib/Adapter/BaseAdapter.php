@@ -14,18 +14,18 @@ abstract class BaseAdapter
     use ContainerAware;
 
     /**
-     * An instance of the class the adapter will interact with
+     * An instance of the adaptee's router that the adapter will interact with
      */
-    protected $adaptee;
+    protected $router;
 
-    public function __construct(Container $container, $adaptee)
+    public function __construct(Container $container, $router)
     {
         $this->setContainer($container);
-        $this->setAdaptee($adaptee);
+        $this->setRouter($router);
     }
 
     /**
-     * Define multiple routes in the adaptee
+     * Define multiple routes in the router
      *
      * @param RouteModel[] $models
      *
@@ -34,7 +34,7 @@ abstract class BaseAdapter
     abstract public function createRoutes($models = array());
 
     /**
-     * Define a single route in the adaptee
+     * Define a single route in the router
      *
      * @param RouteModel $model
      *
@@ -43,19 +43,30 @@ abstract class BaseAdapter
     abstract public function createRoute(RouteModel $model);
 
     /**
-     * @param mixed $instance
+     * @param mixed $router
+     *
+     * @throws \Exception
      */
-    public function setAdaptee($instance)
+    public function setRouter($router)
     {
-        $this->adaptee = $instance;
+        $expectedRouterClass = $this->getRouterClass();
+        if (!$router instanceof $expectedRouterClass) {
+            throw new Exception(sprintf(
+                'Invalid router given - expected "%s", given "%s"',
+                $expectedRouterClass,
+                get_class($router)
+            ));
+        }
+
+        $this->router = $router;
     }
 
     /**
      * @return mixed
      */
-    public function getAdaptee()
+    public function getRouter()
     {
-        return $this->adaptee;
+        return $this->router;
     }
 
     /**
@@ -66,4 +77,11 @@ abstract class BaseAdapter
     {
         throw new Exception('No name defined for adapter ' . get_called_class());
     }
+
+    /**
+     * Defines the expected class of the adapter's router
+     *
+     * @return string
+     */
+    abstract public function getRouterClass();
 } 

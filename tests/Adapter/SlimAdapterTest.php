@@ -1,5 +1,6 @@
 <?php
 use Slim\Environment;
+use Slim\Router;
 use Slim\Slim;
 use Spore\Adapter\SlimAdapter;
 use Spore\Container;
@@ -12,12 +13,12 @@ use Spore\Spore;
 class SlimAdapterTest extends BaseAdapterTest
 {
     /**
-     * @dataProvider adapteeDataProvider
+     * @dataProvider routerDataProvider
      */
-    public function testBasicRouteCreation(Slim $slim)
+    public function testBasicRouteCreation(Slim $slim, Router $router)
     {
         $spore   = new Spore([new HelloSlimController()]);
-        $adapter = $spore->createAdapter(SlimAdapter::getName(), $slim);
+        $adapter = $spore->createAdapter(SlimAdapter::getName(), $router);
 
         $routes = $spore->getRoutes();
         $model  = $routes['hello'];
@@ -45,12 +46,12 @@ class SlimAdapterTest extends BaseAdapterTest
     }
 
     /**
-     * @dataProvider    adapteeDataProvider
+     * @dataProvider    routerDataProvider
      */
-    public function testRouteCreationWithVerbs(Slim $slim)
+    public function testRouteCreationWithVerbs(Slim $slim, Router $router)
     {
         $spore   = new Spore([new HelloSlimController()]);
-        $adapter = $spore->createAdapter(SlimAdapter::getName(), $slim);
+        $adapter = $spore->createAdapter(SlimAdapter::getName(), $router);
 
         $routes = $spore->getRoutes();
         $model  = $routes['jollyWell'];
@@ -65,12 +66,12 @@ class SlimAdapterTest extends BaseAdapterTest
     }
 
     /**
-     * @dataProvider    adapteeDataProvider
+     * @dataProvider    routerDataProvider
      */
-    public function testRouteCreationWithName(Slim $slim)
+    public function testRouteCreationWithName(Slim $slim, Router $router)
     {
         $spore   = new Spore([new HelloSlimController()]);
-        $adapter = $spore->createAdapter(SlimAdapter::getName(), $slim);
+        $adapter = $spore->createAdapter(SlimAdapter::getName(), $router);
 
         $routes = $spore->getRoutes();
         $model  = $routes['tallyHo'];
@@ -87,12 +88,12 @@ class SlimAdapterTest extends BaseAdapterTest
     /**
      * Ensure that parameters passed in URI will be passed along to callback
      *
-     * @dataProvider    adapteeDataProvider
+     * @dataProvider    routerDataProvider
      */
-    public function testRouteParams(Slim $slim)
+    public function testRouteParams(Slim $slim, Router $router)
     {
         $spore   = new Spore([new HelloSlimController()]);
-        $adapter = $spore->createAdapter(SlimAdapter::getName(), $slim);
+        $adapter = $spore->createAdapter(SlimAdapter::getName(), $router);
 
         $routes = $spore->getRoutes();
         $model  = $routes['testParams'];
@@ -114,13 +115,13 @@ class SlimAdapterTest extends BaseAdapterTest
     /**
      * Ensure that even though Slim is executing a callback, Spore still marks the route as 'current'
      *
-     * @dataProvider    adapteeDataProvider
+     * @dataProvider    routerDataProvider
      */
-    public function testCurrentRoute(Slim $slim)
+    public function testCurrentRoute(Slim $slim, Router $router)
     {
         $spore     = new Spore([new HelloSlimController()]);
         $container = $spore->getContainer();
-        $adapter   = $spore->createAdapter(SlimAdapter::getName(), $slim);
+        $adapter   = $spore->createAdapter(SlimAdapter::getName(), $router);
 
         $routes = $spore->getRoutes();
         $model  = $routes['testParams'];
@@ -142,12 +143,12 @@ class SlimAdapterTest extends BaseAdapterTest
     /**
      * Ensure that multiple routes can be created at once
      *
-     * @dataProvider    adapteeDataProvider
+     * @dataProvider    routerDataProvider
      */
-    public function testMultipleRouteCreation(Slim $slim)
+    public function testMultipleRouteCreation(Slim $slim, Router $router)
     {
         $spore       = new Spore([new HelloSlimController()]);
-        $adapter     = $spore->createAdapter(SlimAdapter::getName(), $slim);
+        $adapter     = $spore->createAdapter(SlimAdapter::getName(), $router);
         $routeModels = $spore->getRoutes();
         $routes      = $adapter->createRoutes($routeModels);
 
@@ -165,10 +166,11 @@ class SlimAdapterTest extends BaseAdapterTest
         return '\\Slim\\Slim';
     }
 
-    public function adapteeDataProvider()
+    public function routerDataProvider()
     {
+        $slim = new Slim();
         return [
-            [new Slim()]
+            [$slim, $slim->router]
         ];
     }
 }

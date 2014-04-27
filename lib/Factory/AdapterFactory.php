@@ -12,11 +12,11 @@ class AdapterFactory extends AbstractFactory
 {
     /**
      * @param $name
-     * @param $adaptee
+     * @param $router
      *
      * @return null|BaseAdapter
      */
-    public function createByName($name, $adaptee)
+    public function createByName($name, $router)
     {
         $adapters = array_change_key_case(self::getAdapterClasses(), CASE_LOWER);
         if (!isset($adapters[$name])) {
@@ -24,7 +24,7 @@ class AdapterFactory extends AbstractFactory
         }
 
         $adapterClass = $adapters[$name];
-        return new $adapterClass($this->getContainer(), $adaptee);
+        return new $adapterClass($this->getContainer(), $router);
     }
 
     /**
